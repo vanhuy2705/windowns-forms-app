@@ -81,10 +81,20 @@ namespace SportZone.WinForms.Views
                     if (row != null)
                     {
                         long donId = Convert.ToInt64(row["DonDatSanID"]);
-                        DatabaseManager.ExecuteNonQuery("UPDATE dbo.DonDatSan SET TrangThaiDon = 'DANG_SU_DUNG' WHERE DonDatSanID = @ID", new SqlParameter("@ID", donId));
-                        SFToast.Show(this, "Đã check-in và bắt đầu sử dụng sân cho đơn " + row["MaDon"], "CHECK-IN SÂN", SFIcon.Check, Colors.Emerald);
-                        LoadDataFromDatabase();
-                        return;
+                        try
+                        {
+                            int currentUserId = AppSession.Current != null ? AppSession.Current.TaiKhoanID : 0;
+                            new BookingService().CheckIn(donId, currentUserId);
+                            SFToast.Show(this, "Đã check-in và bắt đầu sử dụng sân cho đơn " + row["MaDon"], "CHECK-IN SÂN", SFIcon.Check, Colors.Emerald);
+                            LoadDataFromDatabase();
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            AppLogger.LogError(ex, "STAFF_SCHEDULE", "btnCheckin");
+                            SFToast.Show(this, "Lỗi check-in: " + ex.Message, "LỖI", SFIcon.AlertCircle, Colors.Coral);
+                            return;
+                        }
                     }
                 }
                 SFToast.Show(this, "Vui lòng chọn đơn thi đấu trong lịch hôm nay để check-in.", "THÔNG BÁO", SFIcon.AlertCircle, Colors.Amber);
@@ -622,7 +632,17 @@ namespace SportZone.WinForms.Views
                         var objTot = DatabaseManager.ExecuteScalar("SELECT TongTien FROM dbo.DonDatSan WHERE DonDatSanID = @ID", new System.Data.SqlClient.SqlParameter("@ID", donId));
                         if (objTot != null && objTot != DBNull.Value) tot = Convert.ToDecimal(objTot);
                     }
-                    catch { tot = 350000; }
+                    catch (Exception exTot)
+                    {
+                        AppLogger.LogError(exTot, "STAFF_BOOKING", "QueryTongTien");
+                        tot = 0;
+                    }
+
+                    if (tot <= 0)
+                    {
+                        SFToast.Show(this, string.Format("Đã tạo đơn đặt sân {0} và hóa đơn #{1}, nhưng không thể xác thực tổng tiền hợp lệ (> 0). Không mở thanh toán QR.", bRes.MaDon, hdId), "CẢNH BÁO TỔNG TIỀN", SFIcon.AlertCircle, Colors.Amber);
+                        return;
+                    }
                     lastCreatedTotal = tot;
 
                     SFToast.Show(this, string.Format("Đã tạo đơn đặt sân {0} và hóa đơn #{1} thành công!", bRes.MaDon, hdId), "ĐẶT SÂN THÀNH CÔNG", SFIcon.Check, Colors.Emerald);
@@ -873,9 +893,30 @@ namespace SportZone.WinForms.Views
                     long donId = Convert.ToInt64(row["DonDatSanID"]);
                     try
                     {
-                        DatabaseManager.ExecuteNonQuery("UPDATE dbo.DonDatSan SET TrangThaiDon = @ST WHERE DonDatSanID = @ID",
-                            new SqlParameter("@ST", status),
-                            new SqlParameter("@ID", donId));
+                        int currentUserId = AppSession.Current != null ? AppSession.Current.TaiKhoanID : 0;
+                        var bookingService = new BookingService();
+                        if (status == "DANG_SU_DUNG")
+                        {
+                            bookingService.CheckIn(donId, currentUserId);
+                        }
+                        else if (status == "HOAN_TAT" || status == "HOAN_THANH")
+                        {
+                            bookingService.CompleteBooking(donId, currentUserId);
+                        }
+                        else if (status == "DA_HUY")
+                        {
+                            bookingService.CancelBooking(donId, currentUserId, "Hủy bởi nhân viên từ lịch sân");
+                        }
+                        else if (status == "DA_XAC_NHAN")
+                        {
+                            bookingService.ConfirmBooking(donId, currentUserId);
+                        }
+                        else
+                        {
+                            DatabaseManager.ExecuteNonQuery("UPDATE dbo.DonDatSan SET TrangThaiDon = @ST WHERE DonDatSanID = @ID",
+                                new SqlParameter("@ST", status),
+                                new SqlParameter("@ID", donId));
+                        }
                         SFToast.Show(this, message, "CẬP NHẬT TRẠNG THÁI", SFIcon.Check, Colors.Emerald);
                         LoadData();
                         return;

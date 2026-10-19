@@ -596,6 +596,15 @@ namespace SportZone.WinForms.Repositories
                 new SqlParameter("@TaiKhoanID", taiKhoanId));
         }
 
+        public int? GetBookingCustomerId(long donDatSanId)
+        {
+            object owner = DatabaseManager.ExecuteScalar(
+                "SELECT KhachHangID FROM dbo.DonDatSan WHERE DonDatSanID = @DonDatSanID",
+                new SqlParameter("@DonDatSanID", donDatSanId));
+            if (owner == null || owner == DBNull.Value) return null;
+            return Convert.ToInt32(owner);
+        }
+
         public void CancelBooking(long donDatSanId, int? taiKhoanId, string lyDo)
         {
             DatabaseManager.ExecuteNonQuery(
@@ -666,6 +675,31 @@ namespace SportZone.WinForms.Repositories
                 new SqlParameter("@TrangThai", string.IsNullOrEmpty(trangThai) ? (object)DBNull.Value : trangThai),
                 new SqlParameter("@TuKhoa", string.IsNullOrEmpty(tuKhoa) ? (object)DBNull.Value : tuKhoa),
                 new SqlParameter("@KhachHangID", khachHangId.HasValue ? (object)khachHangId.Value : DBNull.Value));
+        }
+
+        public DataTable GetInvoiceTotals(long hoaDonId)
+        {
+            return DatabaseManager.ExecuteQuery(
+                @"SELECT h.HoaDonID, h.MaHoaDon, h.DonDatSanID, d.MaDon, h.KhachHangID,
+                         h.TienSan, h.TienDichVu, h.TienKhuyenMai, h.TienVoucher,
+                         h.TongTien, h.DaThanhToan, h.ConLai, h.TrangThaiThanhToan, h.NgayLap
+                  FROM dbo.HoaDon h
+                  JOIN dbo.DonDatSan d ON d.DonDatSanID = h.DonDatSanID
+                  WHERE h.HoaDonID = @HoaDonID",
+                new SqlParameter("@HoaDonID", hoaDonId));
+        }
+
+        public DataTable GetInvoiceTotalsByBooking(long donDatSanId)
+        {
+            return DatabaseManager.ExecuteQuery(
+                @"SELECT h.HoaDonID, h.MaHoaDon, h.DonDatSanID, d.MaDon, h.KhachHangID,
+                         h.TienSan, h.TienDichVu, h.TienKhuyenMai, h.TienVoucher,
+                         h.TongTien, h.DaThanhToan, h.ConLai, h.TrangThaiThanhToan, h.NgayLap
+                  FROM dbo.HoaDon h
+                  JOIN dbo.DonDatSan d ON d.DonDatSanID = h.DonDatSanID
+                  WHERE h.DonDatSanID = @DonDatSanID
+                  ORDER BY h.HoaDonID DESC",
+                new SqlParameter("@DonDatSanID", donDatSanId));
         }
     }
 
