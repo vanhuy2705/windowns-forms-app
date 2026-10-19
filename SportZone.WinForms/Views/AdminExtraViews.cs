@@ -24,6 +24,7 @@ namespace SportZone.WinForms.Views
         private SFMetricCard cardPendingTransfer;
         private SFMetricCard cardSettledRate;
         private DataTable cachedData;
+        private Timer tmrSearchDebounce;
 
         public AdminInvoicesView()
         {
@@ -32,6 +33,17 @@ namespace SportZone.WinForms.Views
             Font = Typography.Body;
             BuildUI();
             LoadDataFromDatabase();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && tmrSearchDebounce != null)
+            {
+                tmrSearchDebounce.Stop();
+                tmrSearchDebounce.Dispose();
+                tmrSearchDebounce = null;
+            }
+            base.Dispose(disposing);
         }
 
         private void BuildUI()
@@ -144,7 +156,7 @@ namespace SportZone.WinForms.Views
                 Height = 38
             };
 
-            Timer debounceTimer = new Timer { Interval = 300 };
+            Timer debounceTimer = tmrSearchDebounce = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
                 debounceTimer.Stop();
@@ -420,6 +432,7 @@ namespace SportZone.WinForms.Views
         private SFSearchBox search;
         private DataTable cachedData;
         private int? _selectedKhuyenMaiId = null;
+        private Timer tmrSearchDebounce;
 
         public PromotionsView()
         {
@@ -428,6 +441,17 @@ namespace SportZone.WinForms.Views
             Font = Typography.Body;
             BuildUI();
             LoadDataFromDatabase();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && tmrSearchDebounce != null)
+            {
+                tmrSearchDebounce.Stop();
+                tmrSearchDebounce.Dispose();
+                tmrSearchDebounce = null;
+            }
+            base.Dispose(disposing);
         }
 
         private void BuildUI()
@@ -444,7 +468,7 @@ namespace SportZone.WinForms.Views
             tb.Controls.Add(btnRefresh);
 
             search = new SFSearchBox { PlaceholderText = "Mã / tên chương trình...", Width = 230, Height = 38 };
-            Timer debounceTimer = new Timer { Interval = 300 };
+            Timer debounceTimer = tmrSearchDebounce = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
                 debounceTimer.Stop();

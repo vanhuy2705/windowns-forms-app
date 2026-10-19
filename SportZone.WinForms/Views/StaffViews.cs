@@ -947,6 +947,7 @@ namespace SportZone.WinForms.Views
         private SFMetricCard metricTongThu;
         private SFMetricCard metricChuaThu;
         private SFMetricCard metricChoXacNhan;
+        private Timer tmrSearchDebounce;
 
         public StaffInvoicesView()
         {
@@ -955,6 +956,17 @@ namespace SportZone.WinForms.Views
             Font = Typography.Body;
             BuildUI();
             LoadData();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && tmrSearchDebounce != null)
+            {
+                tmrSearchDebounce.Stop();
+                tmrSearchDebounce.Dispose();
+                tmrSearchDebounce = null;
+            }
+            base.Dispose(disposing);
         }
 
         private void BuildUI()
@@ -1046,7 +1058,7 @@ namespace SportZone.WinForms.Views
             tb.Controls.Add(refresh);
 
             searchBox = new SFSearchBox { PlaceholderText = "Mã HĐ / mã đơn / khách...", Width = 230, Height = 42 };
-            Timer debounceTimer = new Timer { Interval = 300 };
+            Timer debounceTimer = tmrSearchDebounce = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
                 debounceTimer.Stop();

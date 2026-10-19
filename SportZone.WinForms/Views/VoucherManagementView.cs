@@ -18,6 +18,8 @@ namespace SportZone.WinForms.Views
         private DataTable voucherTable;
         private string searchKeyword = "";
 
+        private Timer tmrSearchDebounce;
+
         public VoucherManagementView()
         {
             Dock = DockStyle.Fill;
@@ -25,6 +27,17 @@ namespace SportZone.WinForms.Views
             Font = Typography.Body;
             BuildUI();
             LoadVouchersFromDatabase();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && tmrSearchDebounce != null)
+            {
+                tmrSearchDebounce.Stop();
+                tmrSearchDebounce.Dispose();
+                tmrSearchDebounce = null;
+            }
+            base.Dispose(disposing);
         }
 
         private void BuildUI()
@@ -90,7 +103,7 @@ namespace SportZone.WinForms.Views
                 Height = 38
             };
 
-            Timer debounceTimer = new Timer { Interval = 300 };
+            Timer debounceTimer = tmrSearchDebounce = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
                 debounceTimer.Stop();
