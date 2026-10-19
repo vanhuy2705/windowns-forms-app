@@ -1327,6 +1327,15 @@ namespace SportZone.WinForms.Dialogs
             base.OnFormClosed(e);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                StopOtpTimers();
+            }
+            base.Dispose(disposing);
+        }
+
         // =========================================================================
         // NESTED HELPER CONTROLS (PIXEL-PERFECT, HIGH-DPI RESILIENT & ISOLATED)
         // =========================================================================

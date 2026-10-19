@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -21,16 +21,18 @@ namespace SportZone.WinForms.Views
         // ==========================================
         // PALETTE TOKENS (LOCAL TO CUSTOMER HOME)
         // ==========================================
-        private static readonly Color ColPageBg = Color.FromArgb(241, 245, 249);       // #F1F5F9
+        private static readonly Color ColPageBg = ColorTranslator.FromHtml("#F5F7FA"); // #F5F7FA V9 Canvas
         private static readonly Color ColCardBg = Color.White;                         // #FFFFFF
         private static readonly Color ColBorder = Color.FromArgb(226, 232, 240);       // #E2E8F0
         private static readonly Color ColTextDark = Color.FromArgb(20, 35, 46);        // #14232E
         private static readonly Color ColTextBody = Color.FromArgb(51, 65, 85);        // #334155
         private static readonly Color ColTextMuted = Color.FromArgb(100, 116, 139);    // #64748B
         private static readonly Color ColPrimaryTeal = Color.FromArgb(15, 118, 110);   // #0F766E
-        private static readonly Color ColEmerald = Color.FromArgb(16, 185, 129);       // #10B981
-        private static readonly Color ColEmeraldDark = Color.FromArgb(5, 150, 105);    // #059669
-        private static readonly Color ColEmeraldTint = Color.FromArgb(236, 253, 245);  // #ECFDF5
+        private static readonly Color ColPrimaryTealHover = Color.FromArgb(17, 94, 89);// #115E59
+        private static readonly Color ColAccent = Color.FromArgb(20, 184, 166);        // #14B8A6
+        private static readonly Color ColEmerald = ColPrimaryTeal;                     // V9 Teal
+        private static readonly Color ColEmeraldDark = ColPrimaryTealHover;            // V9 Teal Hover
+        private static readonly Color ColEmeraldTint = Color.FromArgb(240, 253, 250);  // #F0FDFA
         private static readonly Color ColBlue = Color.FromArgb(37, 99, 235);           // #2563EB
         private static readonly Color ColBlueTint = Color.FromArgb(239, 246, 255);     // #EFF6FF
         private static readonly Color ColAmber = Color.FromArgb(245, 158, 11);         // #F59E0B
@@ -2212,7 +2214,7 @@ namespace SportZone.WinForms.Views
                     }
 
                     // 4. Bottom "Đặt sân" Button
-                    int btnH = 34;
+                    int btnH = 42;
                     int btnY = Height - btnH - 12;
                     btnBookRect = new Rectangle(padX, btnY, availW, btnH);
                     using (GraphicsPath bp = GraphicsUtility.CreateRoundedRectangle(btnBookRect, 8))
@@ -2724,7 +2726,7 @@ namespace SportZone.WinForms.Views
                 Variant = SFButtonVariant.Primary,
                 IconType = SFIcon.Search,
                 Location = new Point(4, 220),
-                Size = new Size(Math.Max(180, p2.ClientSize.Width - 12), 38),
+                Size = new Size(Math.Max(180, p2.ClientSize.Width - 12), 42),
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
             btnCheck.Click += (s, e) => CheckCourtAvailability();
@@ -2779,7 +2781,7 @@ namespace SportZone.WinForms.Views
                 Variant = SFButtonVariant.Primary,
                 IconType = SFIcon.Check,
                 Location = new Point(4, 365),
-                Size = new Size(Math.Max(200, p3.ClientSize.Width - 12), 46),
+                Size = new Size(Math.Max(200, p3.ClientSize.Width - 12), 44),
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
             btnConfirm.Click += (s, e) => ConfirmBooking();

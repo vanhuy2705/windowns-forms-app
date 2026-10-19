@@ -1,24 +1,26 @@
 using System;
-using System.Data;
-using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using SportZone.WinForms.Controls;
-using SportZone.WinForms.Database;
 using SportZone.WinForms.DesignTokens;
 using SportZone.WinForms.Dialogs;
 
 namespace SportZone.WinForms
 {
+    /// <summary>
+    /// V9 Premium Redesigned Login Form with genuine 2-column layout:
+    /// Left Column: Sports Hero & Branding showcase with feature badges.
+    /// Right Column: Elevated Login Card with modern input controls, password eye-toggle, and V9 tokens.
+    /// </summary>
     public class LoginForm : Form
     {
-        // Public properties expected by Program.cs
+        // Public properties expected by Program.cs & MainForm
         public string SelectedRole { get; private set; }
         public string DisplayName { get; private set; }
 
-        // Window dragging native interop
+        // Native Win32 window dragging
         [DllImport("user32.dll")]
         public static extern bool ReleaseCapture();
         [DllImport("user32.dll")]
@@ -27,6 +29,9 @@ namespace SportZone.WinForms
         private const int HTCAPTION = 0x2;
 
         // Interactive controls
+        private TableLayoutPanel rootSplit;
+        private Panel heroPanel;
+        private Panel cardWrapper;
         private Panel cardPanel;
         private TextBox innerTxtUser;
         private TextBox innerTxtPassword;
@@ -34,14 +39,17 @@ namespace SportZone.WinForms
         private bool isRememberChecked = true;
         private int activeTab = 0; // 0 = Đăng nhập, 1 = Đăng ký
 
-        // Visual constants matching the mockup
-        private readonly Color ColBgDark = Color.FromArgb(7, 24, 38);
-        private readonly Color ColEmerald = Color.FromArgb(16, 185, 129);
-        private readonly Color ColEmeraldDark = Color.FromArgb(5, 150, 105);
-        private readonly Color ColTextDark = Color.FromArgb(15, 23, 42);
-        private readonly Color ColTextMuted = Color.FromArgb(100, 116, 139);
-        private readonly Color ColBorder = Color.FromArgb(226, 232, 240);
-        private readonly Color ColBorderFocus = Color.FromArgb(16, 185, 129);
+        // Design Tokens V9 (#0F766E Teal, #14B8A6 Accent, #F5F7FA Background)
+        private static readonly Color ColBgDark = Color.FromArgb(8, 28, 36);
+        private static readonly Color ColTeal = Color.FromArgb(15, 118, 110);         // #0F766E
+        private static readonly Color ColTealHover = Color.FromArgb(17, 94, 89);      // #115E59
+        private static readonly Color ColTealPressed = Color.FromArgb(19, 78, 74);    // #134E4A
+        private static readonly Color ColAccent = Color.FromArgb(20, 184, 166);       // #14B8A6
+        private static readonly Color ColAccentLight = Color.FromArgb(204, 251, 241); // #CCFBF1
+        private static readonly Color ColTextDark = Color.FromArgb(15, 23, 42);       // #0F172A
+        private static readonly Color ColTextMuted = Color.FromArgb(100, 116, 139);   // #64748B
+        private static readonly Color ColBorder = Color.FromArgb(226, 232, 240);      // #E2E8F0
+        private static readonly Color ColBorderFocus = Color.FromArgb(15, 118, 110);  // #0F766E
 
         public LoginForm()
         {
@@ -52,10 +60,10 @@ namespace SportZone.WinForms
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw, true);
 
-            Text = "SPORTFIELD — Hệ thống quản lý đặt sân thể thao";
+            Text = "SPORTZONE - Hệ thống quản lý đặt sân thể thao";
             try { this.Icon = Helpers.SportFieldIconProvider.GetWindowIcon(Helpers.SportFieldIcon.App); } catch { }
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(1024, 576);
+            ClientSize = new Size(1040, 600);
             MinimumSize = new Size(960, 540);
             FormBorderStyle = FormBorderStyle.None;
             BackColor = ColBgDark;
@@ -87,7 +95,6 @@ namespace SportZone.WinForms
             }
             catch { }
 
-            // Deselect any highlighted text on load
             if (innerTxtUser != null)
             {
                 innerTxtUser.SelectionLength = 0;
@@ -114,19 +121,20 @@ namespace SportZone.WinForms
         {
             base.OnResize(e);
             UpdateRegion();
-            if (cardPanel != null)
+            if (cardPanel != null && cardWrapper != null)
             {
-                RepositionCard();
+                CenterCardInWrapper();
             }
             Invalidate();
         }
 
-        private void RepositionCard()
+        private void CenterCardInWrapper()
         {
-            int cardW = 412;
-            int cardH = Math.Min(438, ClientSize.Height - 24);
-            int cardX = ClientSize.Width - cardW - 24;
-            int cardY = (ClientSize.Height - cardH) / 2;
+            if (cardPanel == null || cardWrapper == null) return;
+            int cardW = Math.Min(430, cardWrapper.ClientSize.Width - 32);
+            int cardH = Math.Min(540, cardWrapper.ClientSize.Height - 32);
+            int cardX = (cardWrapper.ClientSize.Width - cardW) / 2;
+            int cardY = (cardWrapper.ClientSize.Height - cardH) / 2;
             cardPanel.SetBounds(cardX, cardY, cardW, cardH);
         }
 
@@ -140,61 +148,89 @@ namespace SportZone.WinForms
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            Graphics g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.HighQuality;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-            // 1. Draw Clean Background (Hero on left, clean dark gradient + aurora glow on right)
-            Image bg = AssetManager.GetLoginCleanBackground();
-            if (bg != null)
-            {
-                g.DrawImage(bg, ClientRectangle);
-            }
-            else
-            {
-                // Fallback rich gradient
-                using (LinearGradientBrush brush = new LinearGradientBrush(
-                    ClientRectangle,
-                    Color.FromArgb(12, 35, 54),
-                    Color.FromArgb(4, 78, 62),
-                    35f))
-                {
-                    g.FillRectangle(brush, ClientRectangle);
-                }
-            }
-        }
-
         private void BuildUI()
         {
-            // Floating White Card Panel
+            // 2-Column Split: Column 0 = Left Hero (54%), Column 1 = Right Card (46%)
+            rootSplit = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = ColBgDark,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            rootSplit.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55f));
+            rootSplit.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45f));
+            rootSplit.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+            Controls.Add(rootSplit);
+
+            // ==========================================
+            // COLUMN 0: HERO BRANDING PANEL
+            // ==========================================
+            heroPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = ColBgDark,
+                Margin = new Padding(0),
+                Padding = new Padding(36, 28, 24, 28)
+            };
+            heroPanel.Paint += DrawHeroPanel;
+            heroPanel.MouseDown += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    ReleaseCapture();
+                    SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+                }
+            };
+            rootSplit.Controls.Add(heroPanel, 0, 0);
+
+            // ==========================================
+            // COLUMN 1: RIGHT CARD WRAPPER & ELEVATED CARD
+            // ==========================================
+            cardWrapper = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = ColBgDark,
+                Margin = new Padding(0),
+                Padding = new Padding(0)
+            };
+            cardWrapper.MouseDown += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    ReleaseCapture();
+                    SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+                }
+            };
+            cardWrapper.Resize += (s, e) => CenterCardInWrapper();
+
+            // Floating Elevated Card Panel
             cardPanel = new Panel
             {
                 BackColor = Color.White,
-                Padding = new Padding(22, 10, 22, 14)
+                Padding = new Padding(22, 12, 22, 14)
             };
             cardPanel.Paint += (s, e) =>
             {
                 Graphics g = e.Graphics;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
 
-                // Card border radius
                 Rectangle r = cardPanel.ClientRectangle;
-                using (GraphicsPath p = GraphicsUtility.CreateRoundedRectangle(new Rectangle(0, 0, r.Width - 1, r.Height - 1), 22))
+                using (GraphicsPath p = GraphicsUtility.CreateRoundedRectangle(new Rectangle(0, 0, r.Width - 1, r.Height - 1), 18))
                 {
                     cardPanel.Region = new Region(p);
 
-                    // Soft subtle border
-                    using (Pen pen = new Pen(Color.FromArgb(235, 238, 242), 1.2f))
+                    using (Pen pen = new Pen(Color.FromArgb(230, 235, 242), 1.2f))
                     {
                         g.DrawPath(pen, p);
                     }
                 }
             };
-            Controls.Add(cardPanel);
-            RepositionCard();
+            cardWrapper.Controls.Add(cardPanel);
+            rootSplit.Controls.Add(cardWrapper, 1, 0);
+            CenterCardInWrapper();
 
             // Card Inner Stack
             TableLayoutPanel stack = new TableLayoutPanel
@@ -210,73 +246,22 @@ namespace SportZone.WinForms
             for (int i = 0; i < 9; i++) stack.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             cardPanel.Controls.Add(stack);
 
-            // ==========================================
-            // ROW 0: WINDOW CONTROL BUTTONS (Inside Card Header)
-            // ==========================================
+            // ROW 0: WINDOW CONTROLS
             Panel topBar = CreateCardTopBar();
             topBar.Margin = new Padding(0, 0, 0, 4);
             stack.Controls.Add(topBar, 0, 0);
 
-            // ==========================================
-            // ROW 1: TAB SWITCHER (Segmented Control)
-            // ==========================================
+            // ROW 1: TAB SWITCHER
             Panel tabContainer = CreateTabSwitcher();
             tabContainer.Margin = new Padding(0, 0, 0, 8);
             stack.Controls.Add(tabContainer, 0, 1);
 
-            // ==========================================
-            // ROW 2: HEADER (Chào mừng trở lại 👋)
-            // ==========================================
-            Panel headerPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 44,
-                Margin = new Padding(0, 0, 0, 8),
-                BackColor = Color.White
-            };
-            headerPanel.Paint += (s, e) =>
-            {
-                Graphics g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.AntiAlias;
-
-                // Title
-                using (Font fTitle = new Font("Segoe UI", 15.5f, FontStyle.Bold))
-                {
-                    string title = "Chào mừng trở lại";
-                    Size sz = TextRenderer.MeasureText(title, fTitle);
-                    TextRenderer.DrawText(g, title, fTitle, new Point(0, 0), ColTextDark);
-
-                    // Waving hand drawing
-                    int wx = sz.Width + 4;
-                    int wy = 3;
-                    using (SolidBrush bGold = new SolidBrush(Color.FromArgb(245, 158, 11)))
-                    {
-                        // Palm & fingers
-                        g.FillEllipse(bGold, wx, wy + 2, 13, 14);
-                        g.FillEllipse(bGold, wx - 2, wy + 5, 5, 6); // Thumb
-                        g.FillEllipse(bGold, wx + 3, wy - 3, 5, 8); // Finger
-                        g.FillEllipse(bGold, wx + 7, wy - 4, 5, 9); // Middle
-                        g.FillEllipse(bGold, wx + 11, wy - 2, 5, 8); // Ring
-                    }
-                    // Motion waves
-                    using (Pen pWave = new Pen(Color.FromArgb(217, 119, 6), 1.2f))
-                    {
-                        g.DrawArc(pWave, wx + 15, wy - 3, 6, 8, 280, 100);
-                        g.DrawArc(pWave, wx + 18, wy - 5, 8, 11, 280, 100);
-                    }
-                }
-
-                // Subtitle
-                using (Font fSub = new Font("Segoe UI", 9f, FontStyle.Regular))
-                {
-                    TextRenderer.DrawText(g, "Đăng nhập để tiếp tục trải nghiệm SportField", fSub, new Point(0, 26), ColTextMuted);
-                }
-            };
+            // ROW 2: GREETING HEADER
+            Panel headerPanel = CreateHeaderPanel();
+            headerPanel.Margin = new Padding(0, 0, 0, 8);
             stack.Controls.Add(headerPanel, 0, 2);
 
-            // ==========================================
             // ROW 3: USERNAME INPUT
-            // ==========================================
             Panel userInput = CreateInputField(
                 label: "Tên đăng nhập",
                 placeholder: "Nhập tên đăng nhập",
@@ -287,9 +272,7 @@ namespace SportZone.WinForms
             userInput.Margin = new Padding(0, 0, 0, 8);
             stack.Controls.Add(userInput, 0, 3);
 
-            // ==========================================
-            // ROW 4: PASSWORD INPUT
-            // ==========================================
+            // ROW 4: PASSWORD INPUT WITH EYE TOGGLE
             Panel pwdInput = CreateInputField(
                 label: "Mật khẩu",
                 placeholder: "Nhập mật khẩu",
@@ -300,37 +283,157 @@ namespace SportZone.WinForms
             pwdInput.Margin = new Padding(0, 0, 0, 8);
             stack.Controls.Add(pwdInput, 0, 4);
 
-            // ==========================================
-            // ROW 5: REMEMBER & FORGOT PASSWORD ROW
-            // ==========================================
+            // ROW 5: OPTIONS ROW (Remember Me & Forgot Password)
             Panel optionsRow = CreateOptionsRow();
             optionsRow.Margin = new Padding(0, 0, 0, 10);
             stack.Controls.Add(optionsRow, 0, 5);
 
-            // ==========================================
-            // ROW 6: PRIMARY BUTTON (➔ ĐĂNG NHẬP)
-            // ==========================================
+            // ROW 6: LOGIN BUTTON
             Panel btnLogin = CreateLoginButton();
-            btnLogin.Margin = new Padding(0, 0, 0, 14);
+            btnLogin.Margin = new Padding(0, 0, 0, 12);
             stack.Controls.Add(btnLogin, 0, 6);
 
-            // ==========================================
-            // ROW 7: REGISTER PROMPT (Chưa có tài khoản? Đăng ký ngay)
-            // ==========================================
+            // ROW 7: REGISTER PROMPT
             Panel regPrompt = CreateRegisterPrompt();
-            regPrompt.Margin = new Padding(0, 0, 0, 14);
+            regPrompt.Margin = new Padding(0, 0, 0, 10);
             stack.Controls.Add(regPrompt, 0, 7);
 
-            // ==========================================
-            // ROW 8: SECURITY BANNER (Đăng nhập an toàn)
-            // ==========================================
+            // ROW 8: SECURITY BANNER
             Panel secBanner = CreateSecurityBanner();
             secBanner.Margin = new Padding(0);
             stack.Controls.Add(secBanner, 0, 8);
         }
 
         // =========================================================
-        // HELPER 0: CARD TOP BAR (Window Controls: Minimize, Maximize, Close)
+        // LEFT HERO PANEL DRAWING (Sports theme, badges, value props)
+        // =========================================================
+        private void DrawHeroPanel(object sender, PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            Rectangle rect = heroPanel.ClientRectangle;
+
+            // 1. Rich dark teal gradient background
+            using (LinearGradientBrush bgBrush = new LinearGradientBrush(
+                rect,
+                Color.FromArgb(6, 22, 30),
+                Color.FromArgb(12, 54, 52),
+                45f))
+            {
+                g.FillRectangle(bgBrush, rect);
+            }
+
+            // Subtle field markings (pitch lines in soft teal)
+            using (Pen pitchPen = new Pen(Color.FromArgb(18, 255, 255, 255), 1.5f))
+            {
+                g.DrawEllipse(pitchPen, -40, rect.Height / 2 - 100, 200, 200);
+                g.DrawLine(pitchPen, 60, 0, 60, rect.Height);
+            }
+
+            int leftPad = 36;
+            int curY = 32;
+
+            // 2. Brand Mark & Badge
+            Rectangle logoBox = new Rectangle(leftPad, curY, 40, 40);
+            using (GraphicsPath lp = GraphicsUtility.CreateRoundedRectangle(logoBox, 10))
+            using (SolidBrush lb = new SolidBrush(ColTeal))
+            {
+                g.FillPath(lb, lp);
+            }
+            VectorIcons.Draw(g, SFIcon.Field, new Rectangle(logoBox.X + 8, logoBox.Y + 8, 24, 24), Color.White, 2.2f);
+
+            // Brand Text
+            using (Font fBrand = new Font("Segoe UI", 16f, FontStyle.Bold))
+            {
+                TextRenderer.DrawText(g, "SPORTZONE", fBrand, new Point(leftPad + 48, curY + 6), Color.White);
+            }
+
+            // Pill Badge "V9 PREMIUM"
+            using (Font fBadge = new Font("Segoe UI", 7.5f, FontStyle.Bold))
+            {
+                Rectangle pillRect = new Rectangle(leftPad + 195, curY + 11, 88, 22);
+                using (GraphicsPath pp = GraphicsUtility.CreateRoundedRectangle(pillRect, 11))
+                using (SolidBrush pb = new SolidBrush(Color.FromArgb(30, ColAccent)))
+                {
+                    g.FillPath(pb, pp);
+                    using (Pen ppen = new Pen(ColAccent, 1.2f))
+                        g.DrawPath(ppen, pp);
+                }
+                TextRenderer.DrawText(g, "V9 PREMIUM", fBadge, pillRect, ColAccentLight, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            }
+
+            curY += 68;
+
+            // 3. Hero Headline
+            using (Font fTitle = new Font("Segoe UI", 20f, FontStyle.Bold))
+            {
+                TextRenderer.DrawText(g, "HỆ THỐNG QUẢN LÝ", fTitle, new Point(leftPad, curY), Color.White);
+                curY += 34;
+                TextRenderer.DrawText(g, "SÂN THỂ THAO ĐA NĂNG", fTitle, new Point(leftPad, curY), ColAccentLight);
+                curY += 40;
+            }
+
+            // Subtitle
+            using (Font fSub = new Font("Segoe UI", 9.5f, FontStyle.Regular))
+            {
+                Rectangle subRect = new Rectangle(leftPad, curY, rect.Width - leftPad - 30, 40);
+                TextRenderer.DrawText(g, "Nền tảng vận hành sân thông minh, kết nối khách hàng và ban quản lý với trải nghiệm mượt mà, tức thời.", fSub, subRect, Color.FromArgb(203, 213, 225), TextFormatFlags.WordBreak);
+                curY += 48;
+            }
+
+            // 4. Feature Highlights (4 feature items)
+            var features = new[]
+            {
+                ("Đặt sân trực tuyến & giữ chỗ", "Lịch trống thời gian thực, chống trùng lịch tuyệt đối"),
+                ("Thanh toán tự động VietQR", "Sinh mã QR động, đối soát tự động nhanh chóng"),
+                ("Phân quyền đa cấp an toàn", "Dành riêng cho Quản trị viên, Nhân viên và Khách hàng"),
+                ("Báo cáo & thống kê tức thì", "Theo dõi doanh thu, công suất sân và lịch đặt liên tục")
+            };
+
+            using (Font fFeatTitle = new Font("Segoe UI", 9.5f, FontStyle.Bold))
+            using (Font fFeatDesc = new Font("Segoe UI", 8.25f, FontStyle.Regular))
+            {
+                foreach (var feat in features)
+                {
+                    int circleSize = 22;
+                    Rectangle circleRect = new Rectangle(leftPad, curY + 2, circleSize, circleSize);
+                    using (SolidBrush cb = new SolidBrush(Color.FromArgb(35, ColAccent)))
+                    {
+                        g.FillEllipse(cb, circleRect);
+                    }
+                    using (Pen cp = new Pen(ColAccent, 1.8f))
+                    {
+                        cp.StartCap = LineCap.Round;
+                        cp.EndCap = LineCap.Round;
+                        g.DrawLine(cp, leftPad + 6, curY + 13, leftPad + 9, curY + 16);
+                        g.DrawLine(cp, leftPad + 9, curY + 16, leftPad + 16, curY + 9);
+                    }
+
+                    TextRenderer.DrawText(g, feat.Item1, fFeatTitle, new Point(leftPad + 30, curY), Color.White);
+                    TextRenderer.DrawText(g, feat.Item2, fFeatDesc, new Point(leftPad + 30, curY + 18), Color.FromArgb(148, 163, 184));
+
+                    curY += 46;
+                }
+            }
+
+            // 5. Bottom Security Badge
+            int footY = rect.Height - 44;
+            Rectangle footBox = new Rectangle(leftPad, footY, rect.Width - leftPad - 30, 28);
+            using (GraphicsPath fp = GraphicsUtility.CreateRoundedRectangle(footBox, 8))
+            using (SolidBrush fb = new SolidBrush(Color.FromArgb(20, 255, 255, 255)))
+            {
+                g.FillPath(fb, fp);
+            }
+            using (Font fSec = new Font("Segoe UI", 8f, FontStyle.Regular))
+            {
+                TextRenderer.DrawText(g, "🔒 Chuẩn bảo mật PBKDF2-HMAC-SHA256 • Mã hóa đa lớp an toàn", fSec, footBox, Color.FromArgb(167, 243, 208), TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            }
+        }
+
+        // =========================================================
+        // HELPER: CARD TOP BAR (Window Controls: Minimize, Close)
         // =========================================================
         private Panel CreateCardTopBar()
         {
@@ -342,9 +445,7 @@ namespace SportZone.WinForms
             };
 
             int btnSize = 22;
-            int rightEdge = bar.Width;
 
-            // Close button (✕)
             Panel btnClose = new Panel
             {
                 Size = new Size(btnSize, btnSize),
@@ -378,7 +479,6 @@ namespace SportZone.WinForms
             btnClose.MouseLeave += (s, e) => { closeHover = false; btnClose.Invalidate(); };
             btnClose.Click += (s, e) => Application.Exit();
 
-            // Minimize button (—)
             Panel btnMin = new Panel
             {
                 Size = new Size(btnSize, btnSize),
@@ -411,7 +511,6 @@ namespace SportZone.WinForms
             btnMin.MouseLeave += (s, e) => { minHover = false; btnMin.Invalidate(); };
             btnMin.Click += (s, e) => WindowState = FormWindowState.Minimized;
 
-            // Layout buttons on resize
             bar.Resize += (s, e) =>
             {
                 btnClose.Location = new Point(bar.Width - btnSize, 1);
@@ -421,7 +520,6 @@ namespace SportZone.WinForms
             bar.Controls.Add(btnClose);
             bar.Controls.Add(btnMin);
 
-            // Allow dragging window from card topbar
             bar.MouseDown += (s, e) =>
             {
                 if (e.Button == MouseButtons.Left)
@@ -435,7 +533,7 @@ namespace SportZone.WinForms
         }
 
         // =========================================================
-        // HELPER 1: TAB SWITCHER (Segmented Control)
+        // HELPER: TAB SWITCHER (Segmented Control: Đăng nhập / Đăng ký)
         // =========================================================
         private Panel CreateTabSwitcher()
         {
@@ -459,7 +557,6 @@ namespace SportZone.WinForms
                 int halfW = (tabBox.Width - 6) / 2;
                 if (activeTab == 0)
                 {
-                    // Tab 1 Active Pill
                     Rectangle pill = new Rectangle(3, 3, halfW, tabBox.Height - 6);
                     using (GraphicsPath pp = GraphicsUtility.CreateRoundedRectangle(pill, 10))
                     {
@@ -469,8 +566,7 @@ namespace SportZone.WinForms
                             g.DrawPath(pen, pp);
                     }
 
-                    // Green Active Accent Bar at bottom
-                    using (SolidBrush b = new SolidBrush(ColEmerald))
+                    using (SolidBrush b = new SolidBrush(ColTeal))
                     {
                         Rectangle acc = new Rectangle(pill.Left + 22, pill.Bottom - 3, pill.Width - 44, 3);
                         using (GraphicsPath ap = GraphicsUtility.CreateRoundedRectangle(acc, 2))
@@ -479,7 +575,6 @@ namespace SportZone.WinForms
                 }
                 else
                 {
-                    // Tab 2 Active Pill
                     Rectangle pill = new Rectangle(3 + halfW, 3, halfW, tabBox.Height - 6);
                     using (GraphicsPath pp = GraphicsUtility.CreateRoundedRectangle(pill, 10))
                     {
@@ -488,7 +583,7 @@ namespace SportZone.WinForms
                         using (Pen pen = new Pen(Color.FromArgb(226, 232, 240), 1f))
                             g.DrawPath(pen, pp);
                     }
-                    using (SolidBrush b = new SolidBrush(ColEmerald))
+                    using (SolidBrush b = new SolidBrush(ColTeal))
                     {
                         Rectangle acc = new Rectangle(pill.Left + 22, pill.Bottom - 3, pill.Width - 44, 3);
                         using (GraphicsPath ap = GraphicsUtility.CreateRoundedRectangle(acc, 2))
@@ -496,37 +591,21 @@ namespace SportZone.WinForms
                     }
                 }
 
-                // Draw Tab 1 Text & Icon
                 int t1CenterX = 3 + halfW / 2;
-                int iconY = (tabBox.Height - 16) / 2;
-                Color t1Color = activeTab == 0 ? ColTextDark : ColTextMuted;
-                Font t1Font = new Font("Segoe UI", 9.5f, activeTab == 0 ? FontStyle.Bold : FontStyle.Regular);
-
-                // User icon
-                using (SolidBrush b = new SolidBrush(activeTab == 0 ? ColEmerald : ColTextMuted))
+                using (Font t1Font = new Font("Segoe UI", 9.5f, activeTab == 0 ? FontStyle.Bold : FontStyle.Regular))
                 {
-                    g.FillEllipse(b, t1CenterX - 44, iconY + 1, 8, 8);
-                    g.FillPie(b, t1CenterX - 47, iconY + 8, 14, 12, 180, 180);
+                    Color t1Color = activeTab == 0 ? ColTeal : ColTextMuted;
+                    Size sz = TextRenderer.MeasureText("Đăng nhập", t1Font);
+                    TextRenderer.DrawText(g, "Đăng nhập", t1Font, new Point(t1CenterX - sz.Width / 2, (tabBox.Height - sz.Height) / 2), t1Color);
                 }
-                TextRenderer.DrawText(g, "Đăng nhập", t1Font, new Point(t1CenterX - 24, iconY - 1), t1Color);
 
-                // Draw Tab 2 Text & Icon
                 int t2CenterX = 3 + halfW + halfW / 2;
-                Color t2Color = activeTab == 1 ? ColTextDark : ColTextMuted;
-                Font t2Font = new Font("Segoe UI", 9.5f, activeTab == 1 ? FontStyle.Bold : FontStyle.Regular);
-
-                using (SolidBrush b = new SolidBrush(activeTab == 1 ? ColEmerald : ColTextMuted))
+                using (Font t2Font = new Font("Segoe UI", 9.5f, activeTab == 1 ? FontStyle.Bold : FontStyle.Regular))
                 {
-                    g.FillEllipse(b, t2CenterX - 36, iconY + 1, 7, 7);
-                    g.FillPie(b, t2CenterX - 39, iconY + 7, 13, 11, 180, 180);
-                    // plus sign
-                    using (Pen p = new Pen(b.Color, 1.5f))
-                    {
-                        g.DrawLine(p, t2CenterX - 24, iconY + 5, t2CenterX - 20, iconY + 5);
-                        g.DrawLine(p, t2CenterX - 22, iconY + 3, t2CenterX - 22, iconY + 7);
-                    }
+                    Color t2Color = activeTab == 1 ? ColTeal : ColTextMuted;
+                    Size sz = TextRenderer.MeasureText("Đăng ký", t2Font);
+                    TextRenderer.DrawText(g, "Đăng ký", t2Font, new Point(t2CenterX - sz.Width / 2, (tabBox.Height - sz.Height) / 2), t2Color);
                 }
-                TextRenderer.DrawText(g, "Đăng ký", t2Font, new Point(t2CenterX - 14, iconY - 1), t2Color);
             };
 
             tabBox.MouseClick += (s, e) =>
@@ -549,7 +628,54 @@ namespace SportZone.WinForms
         }
 
         // =========================================================
-        // HELPER 2: CUSTOM OUTLINED INPUT FIELD
+        // HELPER: GREETING HEADER PANEL
+        // =========================================================
+        private Panel CreateHeaderPanel()
+        {
+            Panel headerPanel = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 44,
+                BackColor = Color.White
+            };
+            headerPanel.Paint += (s, e) =>
+            {
+                Graphics g = e.Graphics;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+
+                using (Font fTitle = new Font("Segoe UI", 15.5f, FontStyle.Bold))
+                {
+                    string title = "Chào mừng trở lại";
+                    Size sz = TextRenderer.MeasureText(title, fTitle);
+                    TextRenderer.DrawText(g, title, fTitle, new Point(0, 0), ColTextDark);
+
+                    int wx = sz.Width + 4;
+                    int wy = 3;
+                    using (SolidBrush bGold = new SolidBrush(Color.FromArgb(245, 158, 11)))
+                    {
+                        g.FillEllipse(bGold, wx, wy + 2, 13, 14);
+                        g.FillEllipse(bGold, wx - 2, wy + 5, 5, 6);
+                        g.FillEllipse(bGold, wx + 3, wy - 3, 5, 8);
+                        g.FillEllipse(bGold, wx + 7, wy - 4, 5, 9);
+                        g.FillEllipse(bGold, wx + 11, wy - 2, 5, 8);
+                    }
+                    using (Pen pWave = new Pen(Color.FromArgb(217, 119, 6), 1.2f))
+                    {
+                        g.DrawArc(pWave, wx + 15, wy - 3, 6, 8, 280, 100);
+                        g.DrawArc(pWave, wx + 18, wy - 5, 8, 11, 280, 100);
+                    }
+                }
+
+                using (Font fSub = new Font("Segoe UI", 9f, FontStyle.Regular))
+                {
+                    TextRenderer.DrawText(g, "Đăng nhập để tiếp tục trải nghiệm SportZone", fSub, new Point(0, 26), ColTextMuted);
+                }
+            };
+            return headerPanel;
+        }
+
+        // =========================================================
+        // HELPER: CUSTOM INPUT FIELD WITH USER/LOCK & EYE TOGGLE
         // =========================================================
         private Panel CreateInputField(string label, string placeholder, string defaultVal, bool isPassword, out TextBox outTextBox)
         {
@@ -579,6 +705,14 @@ namespace SportZone.WinForms
             txt.Enter += (s, e) => { isFocused = true; box.Invalidate(); };
             txt.Leave += (s, e) => { isFocused = false; box.Invalidate(); };
             txt.TextChanged += (s, e) => { box.Invalidate(); };
+            txt.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.SuppressKeyPress = true;
+                    DoLogin(s, EventArgs.Empty);
+                }
+            };
 
             box.Paint += (s, e) =>
             {
@@ -594,14 +728,12 @@ namespace SportZone.WinForms
                     }
                 }
 
-                // Left Icon (User or Lock)
                 int iconX = 14;
                 int iconY = (box.Height - 18) / 2;
-                Color iconColor = isFocused ? ColEmerald : Color.FromArgb(148, 163, 184);
+                Color iconColor = isFocused ? ColTeal : Color.FromArgb(148, 163, 184);
 
                 if (!isPassword)
                 {
-                    // User icon
                     using (Pen p = new Pen(iconColor, 1.5f))
                     {
                         g.DrawEllipse(p, iconX + 3, iconY + 1, 9, 9);
@@ -610,7 +742,6 @@ namespace SportZone.WinForms
                 }
                 else
                 {
-                    // Lock icon
                     using (Pen p = new Pen(iconColor, 1.5f))
                     {
                         g.DrawArc(p, iconX + 3, iconY + 1, 9, 10, 180, 180);
@@ -622,19 +753,16 @@ namespace SportZone.WinForms
                     }
                 }
 
-                // Top label text
                 using (Font lblFont = new Font("Segoe UI", 7.5f, FontStyle.Regular))
                 {
                     TextRenderer.DrawText(g, label, lblFont, new Point(44, 4), ColTextMuted);
                 }
 
-                // Right action button: Clear (✕) or Eye (👁)
                 int rightBtnX = box.Width - 24;
                 int cy = box.Height / 2;
 
                 if (!isPassword)
                 {
-                    // Clear circle ✕
                     if (!string.IsNullOrEmpty(txt.Text))
                     {
                         int cr = 8;
@@ -651,8 +779,7 @@ namespace SportZone.WinForms
                 }
                 else
                 {
-                    // Eye icon
-                    Color eyeCol = isPasswordHidden ? Color.FromArgb(148, 163, 184) : ColEmerald;
+                    Color eyeCol = isPasswordHidden ? Color.FromArgb(148, 163, 184) : ColTeal;
                     using (Pen p = new Pen(eyeCol, 1.5f))
                     {
                         p.StartCap = LineCap.Round;
@@ -698,14 +825,14 @@ namespace SportZone.WinForms
         }
 
         // =========================================================
-        // HELPER 3: OPTIONS ROW (Remember Me & Forgot Password)
+        // HELPER: REMEMBER ME & FORGOT PASSWORD ROW
         // =========================================================
         private Panel CreateOptionsRow()
         {
             Panel row = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 22,
+                Height = 24,
                 BackColor = Color.White
             };
 
@@ -714,70 +841,53 @@ namespace SportZone.WinForms
                 Graphics g = e.Graphics;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
 
-                // Checkbox Square (Green checked)
-                Rectangle chkRect = new Rectangle(2, 3, 16, 16);
+                int boxSize = 16;
+                int boxY = (row.Height - boxSize) / 2;
+                Rectangle chkRect = new Rectangle(0, boxY, boxSize, boxSize);
+
                 using (GraphicsPath p = GraphicsUtility.CreateRoundedRectangle(chkRect, 4))
                 {
                     if (isRememberChecked)
                     {
-                        using (SolidBrush b = new SolidBrush(ColEmerald))
+                        using (SolidBrush b = new SolidBrush(ColTeal))
                             g.FillPath(b, p);
                         using (Pen pen = new Pen(Color.White, 1.8f))
                         {
                             pen.StartCap = LineCap.Round;
                             pen.EndCap = LineCap.Round;
-                            g.DrawLine(pen, 5, 11, 8, 14);
-                            g.DrawLine(pen, 8, 14, 14, 7);
+                            g.DrawLine(pen, 3, boxY + 8, 6, boxY + 11);
+                            g.DrawLine(pen, 6, boxY + 11, 12, boxY + 4);
                         }
                     }
                     else
                     {
-                        using (Pen pen = new Pen(ColBorder, 1.5f))
+                        using (SolidBrush b = new SolidBrush(Color.White))
+                            g.FillPath(b, p);
+                        using (Pen pen = new Pen(ColBorder, 1.2f))
                             g.DrawPath(pen, p);
                     }
                 }
 
-                // Checkbox Label
-                using (Font font = new Font("Segoe UI", 9f, FontStyle.Regular))
+                using (Font f = new Font("Segoe UI", 9f, FontStyle.Regular))
                 {
-                    TextRenderer.DrawText(g, "Ghi nhớ đăng nhập", font, new Point(24, 2), Color.FromArgb(51, 65, 85));
-                }
+                    TextRenderer.DrawText(g, "Ghi nhớ đăng nhập", f, new Point(22, 2), ColTextDark);
 
-                // Forgot Password Link
-                using (Font linkFont = new Font("Segoe UI", 9f, FontStyle.Bold))
-                {
-                    Size sz = TextRenderer.MeasureText("Quên mật khẩu?", linkFont);
-                    int linkX = row.Width - sz.Width - 2;
-                    TextRenderer.DrawText(g, "Quên mật khẩu?", linkFont, new Point(linkX, 2), ColEmerald);
+                    string forgotText = "Quên mật khẩu?";
+                    Size sz = TextRenderer.MeasureText(forgotText, f);
+                    TextRenderer.DrawText(g, forgotText, f, new Point(row.Width - sz.Width, 2), ColTeal);
                 }
             };
 
             row.MouseClick += (s, e) =>
             {
-                if (e.X < 160)
+                if (e.X < 140)
                 {
                     isRememberChecked = !isRememberChecked;
                     row.Invalidate();
                 }
-                else if (e.X > row.Width - 120)
+                else if (e.X > row.Width - 110)
                 {
-                    using (var forgotForm = new Dialogs.ForgotPasswordForm())
-                    {
-                        var res = forgotForm.ShowDialog(this);
-                        if (res == DialogResult.OK && !string.IsNullOrEmpty(forgotForm.RecoveredUsername))
-                        {
-                            if (innerTxtUser != null)
-                            {
-                                innerTxtUser.Text = forgotForm.RecoveredUsername;
-                                innerTxtUser.SelectionStart = innerTxtUser.Text.Length;
-                            }
-                            if (innerTxtPassword != null)
-                            {
-                                innerTxtPassword.Text = "";
-                                innerTxtPassword.Focus();
-                            }
-                        }
-                    }
+                    new ForgotPasswordForm().ShowDialog(this);
                 }
             };
             row.Cursor = Cursors.Hand;
@@ -785,19 +895,19 @@ namespace SportZone.WinForms
         }
 
         // =========================================================
-        // HELPER 4: PRIMARY BUTTON (➔ ĐĂNG NHẬP)
+        // HELPER: LOGIN BUTTON
         // =========================================================
         private Panel CreateLoginButton()
         {
             Panel btn = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 42,
-                BackColor = ColEmerald,
-                Cursor = Cursors.Hand
+                Height = 44,
+                BackColor = Color.White
             };
 
             bool isHovered = false;
+            bool isPressed = false;
 
             btn.Paint += (s, e) =>
             {
@@ -807,37 +917,34 @@ namespace SportZone.WinForms
                 Rectangle r = new Rectangle(0, 0, btn.Width - 1, btn.Height - 1);
                 using (GraphicsPath p = GraphicsUtility.CreateRoundedRectangle(r, 12))
                 {
-                    btn.Region = new Region(p);
-
-                    // Gradient Fill
-                    Color c1 = isHovered ? Color.FromArgb(5, 150, 105) : ColEmerald;
-                    Color c2 = isHovered ? Color.FromArgb(16, 185, 129) : Color.FromArgb(13, 148, 100);
-                    using (LinearGradientBrush b = new LinearGradientBrush(r, c1, c2, LinearGradientMode.Horizontal))
+                    Color bgCol = isPressed ? ColTealPressed : (isHovered ? ColTealHover : ColTeal);
+                    using (SolidBrush b = new SolidBrush(bgCol))
                     {
                         g.FillPath(b, p);
                     }
                 }
 
-                // Text: ➔  ĐĂNG NHẬP
-                using (Font font = new Font("Segoe UI", 10.25f, FontStyle.Bold))
+                using (Font f = new Font("Segoe UI", 10.5f, FontStyle.Bold))
                 {
-                    string text = "→  ĐĂNG NHẬP";
-                    Size sz = TextRenderer.MeasureText(text, font);
+                    string text = "ĐĂNG NHẬP";
+                    Size sz = TextRenderer.MeasureText(text, f);
                     int tx = (btn.Width - sz.Width) / 2;
                     int ty = (btn.Height - sz.Height) / 2;
-                    TextRenderer.DrawText(g, text, font, new Point(tx, ty), Color.White);
+                    TextRenderer.DrawText(g, text, f, new Point(tx, ty), Color.White);
                 }
             };
 
             btn.MouseEnter += (s, e) => { isHovered = true; btn.Invalidate(); };
-            btn.MouseLeave += (s, e) => { isHovered = false; btn.Invalidate(); };
+            btn.MouseLeave += (s, e) => { isHovered = false; isPressed = false; btn.Invalidate(); };
+            btn.MouseDown += (s, e) => { isPressed = true; btn.Invalidate(); };
+            btn.MouseUp += (s, e) => { isPressed = false; btn.Invalidate(); };
             btn.Click += DoLogin;
-
+            btn.Cursor = Cursors.Hand;
             return btn;
         }
 
         // =========================================================
-        // HELPER 5: REGISTER PROMPT (Chưa có tài khoản? Đăng ký ngay)
+        // HELPER: REGISTER PROMPT
         // =========================================================
         private Panel CreateRegisterPrompt()
         {
@@ -866,7 +973,7 @@ namespace SportZone.WinForms
                     int startY = (row.Height - sz1.Height) / 2;
 
                     TextRenderer.DrawText(g, part1, f1, new Point(startX, startY), ColTextMuted);
-                    TextRenderer.DrawText(g, part2, f2, new Point(startX + sz1.Width, startY), ColEmerald);
+                    TextRenderer.DrawText(g, part2, f2, new Point(startX + sz1.Width, startY), ColTeal);
                 }
             };
 
@@ -876,7 +983,7 @@ namespace SportZone.WinForms
         }
 
         // =========================================================
-        // HELPER 6: SECURITY BANNER (Đăng nhập an toàn)
+        // HELPER: SECURITY BANNER (Đăng nhập an toàn)
         // =========================================================
         private Panel CreateSecurityBanner()
         {
@@ -884,7 +991,7 @@ namespace SportZone.WinForms
             {
                 Dock = DockStyle.Top,
                 Height = 46,
-                BackColor = Color.FromArgb(236, 253, 245)
+                BackColor = Color.FromArgb(240, 253, 250) // #F0FDFA
             };
 
             banner.Paint += (s, e) =>
@@ -897,44 +1004,38 @@ namespace SportZone.WinForms
                 {
                     banner.Region = new Region(p);
 
-                    using (Pen pen = new Pen(Color.FromArgb(167, 243, 208), 1.2f))
+                    using (Pen pen = new Pen(Color.FromArgb(153, 246, 228), 1.2f))
                         g.DrawPath(pen, p);
                 }
 
-                // Shield badge circle
                 int circleSize = 28;
                 int circleX = 12;
                 int circleY = (banner.Height - circleSize) / 2;
-                using (SolidBrush b = new SolidBrush(Color.FromArgb(52, 211, 153)))
+                using (SolidBrush b = new SolidBrush(ColTeal))
                     g.FillEllipse(b, circleX, circleY, circleSize, circleSize);
 
-                // White shield & checkmark
                 using (Pen p = new Pen(Color.White, 1.6f))
                 {
                     p.StartCap = LineCap.Round;
                     p.EndCap = LineCap.Round;
                     int sx = circleX + 7;
                     int sy = circleY + 7;
-                    // Shield
                     g.DrawLine(p, sx, sy, sx + 14, sy);
                     g.DrawLine(p, sx + 14, sy, sx + 14, sy + 6);
                     g.DrawLine(p, sx + 14, sy + 6, sx + 7, sy + 13);
                     g.DrawLine(p, sx + 7, sy + 13, sx, sy + 6);
                     g.DrawLine(p, sx + 6, sy + 6, sx, sy);
-                    // Check
                     g.DrawLine(p, sx + 4, sy + 6, sx + 6, sy + 9);
                     g.DrawLine(p, sx + 6, sy + 9, sx + 10, sy + 4);
                 }
 
-                // Title
                 using (Font titleFont = new Font("Segoe UI", 8.75f, FontStyle.Bold))
-                    TextRenderer.DrawText(g, "Đăng nhập an toàn", titleFont, new Point(48, 5), Color.FromArgb(6, 95, 70));
+                    TextRenderer.DrawText(g, "Đăng nhập an toàn", titleFont, new Point(48, 5), Color.FromArgb(15, 118, 110));
 
-                // Description
                 using (Font subFont = new Font("Segoe UI", 7.25f, FontStyle.Regular))
                 {
                     Rectangle descRect = new Rectangle(48, 20, banner.Width - 54, 24);
-                    TextRenderer.DrawText(g, "Tài khoản được bảo vệ bằng mã hóa, đảm bảo an toàn thông tin cá nhân và dữ liệu đặt sân.", subFont, descRect, Color.FromArgb(4, 120, 87), TextFormatFlags.WordBreak);
+                    TextRenderer.DrawText(g, "Tài khoản được bảo vệ bằng mã hóa, đảm bảo an toàn thông tin cá nhân và dữ liệu đặt sân.", subFont, descRect, Color.FromArgb(17, 94, 89), TextFormatFlags.WordBreak);
                 }
             };
 
@@ -1014,7 +1115,6 @@ namespace SportZone.WinForms
                 }
                 catch { }
 
-                // Đồng bộ thuộc tính công khai cho Program.cs và MainForm
                 SelectedRole = Session.AppSession.Current.TenVaiTro;
                 DisplayName = Session.AppSession.Current.HoTen;
 
