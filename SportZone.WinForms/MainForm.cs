@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using SportZone.WinForms.Controls;
@@ -1034,7 +1035,32 @@ namespace SportZone.WinForms
             contentHost.ResumeLayout(true);
             if (oldView != null && oldView != view)
             {
-                try { oldView.Dispose(); } catch { }
+                try { DisposeTimersDeep(oldView, 0); oldView.Dispose(); } catch { }
+            }
+        }
+
+        // Dò sâu qua các field Timer (kể cả biến cục bộ không dispose) để tránh timer tick []
+        private static void DisposeTimersDeep(object obj, int depth)
+        {
+            if (obj == null || depth > 3) return;
+            try
+            {
+                foreach (FieldInfo f in obj.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (f.FieldType == typeof(Timer))
+                    {
+                        try { (f.GetValue(obj) as Timer)?.Dispose(); } catch { }
+                    }
+                }
+            }
+            catch { }
+            if (obj is Control c)
+            {
+                try
+                {
+                    foreach (Control child in c.Controls) DisposeTimersDeep(child, depth + 1);
+                }
+                catch { }
             }
         }
 

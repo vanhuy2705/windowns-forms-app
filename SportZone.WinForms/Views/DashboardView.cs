@@ -186,7 +186,7 @@ namespace SportZone.WinForms.Views
 
             kpi4 = new SFMetricCard
             {
-                Title = "GIÁ TRỊ ĐƠN BÌNH QUÂN",
+                Title = "TỔNG GIÁ TRỊ ĐƠN",
                 Value = "—",
                 TrendText = "",
                 IsPositiveTrend = true,
@@ -339,6 +339,16 @@ namespace SportZone.WinForms.Views
         {
             try
             {
+                // Reset trung thực: mỗi lần load đều bắt đầu từ trạng thái trống/—
+                kpi1.Value = "—"; kpi2.Value = "—"; kpi3.Value = "—"; kpi4.Value = "—";
+                kpi1.SparklineData = null;
+                revChart.XLabels = new string[0];
+                revChart.Values = new double[0];
+                donutChart.Categories = new string[0];
+                donutChart.Percentages = new float[0];
+                revChart.Invalidate();
+                donutChart.Invalidate();
+
                 // 1. Overview report using ReportRepository / ReportService
                 var reportService = new Services.ReportService();
                 DataSet ds = reportService.GetGeneralReport(tuNgay, denNgay);
@@ -350,9 +360,9 @@ namespace SportZone.WinForms.Views
                     int tongDon = r.Table.Columns.Contains("TongDon") && r["TongDon"] != DBNull.Value ? Convert.ToInt32(r["TongDon"]) : 0;
                     decimal giaTriDon = r.Table.Columns.Contains("GiaTriDon") && r["GiaTriDon"] != DBNull.Value ? Convert.ToDecimal(r["GiaTriDon"]) : 0;
 
-                    kpi1.Value = string.Format("{0:N0} đ", daThu > 0 ? daThu : giaTriDon);
+                    kpi1.Value = string.Format("{0:N0} đ", daThu);
                     kpi2.Value = string.Format("{0} đơn", tongDon);
-                    kpi4.Value = giaTriDon > 0 ? string.Format("{0:N0} đ", giaTriDon) : "—";
+                    kpi4.Value = string.Format("{0:N0} đ", giaTriDon);
                     sub.Text = string.Format("Dữ liệu tổng hợp CSDL từ {0:dd/MM/yyyy} đến {1:dd/MM/yyyy}.", tuNgay, denNgay);
 
                     // Daily trend in table 1 if present — thực sự từ CSDL
@@ -361,15 +371,15 @@ namespace SportZone.WinForms.Views
                         DataTable dtDaily = ds.Tables[1];
                         List<string> lbls = new List<string>();
                         List<double> vals = new List<double>();
-                        List<int> spark = new List<int>();
+                        List<double> spark = new List<double>();
                         double maxV = 1.0;
                         double sparkMax = 1.0;
                         foreach (DataRow row in dtDaily.Rows)
                         {
                             DateTime d = Convert.ToDateTime(row["Ngay"]);
                             double revM = Convert.ToDouble(row["DoanhThu"]) / 1000000.0;
-                            int sparkVal = row.Table.Columns.Contains("DoanhThu") && row["DoanhThu"] != DBNull.Value
-                                ? Convert.ToInt32(Convert.ToDouble(row["DoanhThu"]))
+                            double sparkVal = row.Table.Columns.Contains("DoanhThu") && row["DoanhThu"] != DBNull.Value
+                                ? Convert.ToDouble(row["DoanhThu"])
                                 : 0;
                             lbls.Add(d.ToString("dd/MM"));
                             vals.Add(Math.Round(revM, 1));
@@ -381,10 +391,12 @@ namespace SportZone.WinForms.Views
                         revChart.Values = vals.ToArray();
                         revChart.MaxValue = maxV * 1.25;
                         revChart.Invalidate();
-                        // Sparkline KPI doanh thu: dữ liệu thật + baseline 10 nước nếu chỉ vài điểm
-                        if (spark.Count == 1) spark.Insert(0, 0);
-                        kpi1.SparklineData = spark.ToArray();
-                        kpi1.Invalidate();
+                        // Sparkline KPI doanh thu: chỉ gán khi có ≥2 điểm dữ liệu thật
+                        if (spark.Count > 1)
+                        {
+                            kpi1.SparklineData = spark.ToArray();
+                            kpi1.Invalidate();
+                        }
                     }
 
                     // Court categories in table 2 if present
@@ -432,7 +444,7 @@ namespace SportZone.WinForms.Views
                     }
 
                     kpi3.Value = string.Format("{0} / {1}", activeSan, totalSan);
-                    activeBadge.Text = string.Format("● {0}/{1} SÂN ĐANG SẴN SÀNG", activeSan, totalSan);
+                    activeBadge.Text = string.Format("● {0}/{1} SÂN HOẠT ĐỘNG", activeSan, totalSan);
                 }
 
                 // 3. Load Bookings for Today

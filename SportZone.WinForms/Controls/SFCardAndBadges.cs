@@ -98,7 +98,7 @@ namespace SportZone.WinForms.Controls
         public bool IsPositiveTrend { get; set; } = true;
         public Color AccentColor { get; set; } = Colors.Primary;
         public SFIcon Icon { get; set; } = SFIcon.TrendingUp;
-        public int[] SparklineData { get; set; } = null;
+        public double[] SparklineData { get; set; } = null;
 
         public SFMetricCard()
         {
@@ -227,16 +227,17 @@ namespace SportZone.WinForms.Controls
                 if (sparkW >= 40)
                 {
                     PointF[] pts = new PointF[SparklineData.Length];
-                    int maxVal = 100;
+                    double maxVal = 0;
                     for (int i = 0; i < SparklineData.Length; i++)
                     {
                         if (SparklineData[i] > maxVal) maxVal = SparklineData[i];
                     }
+                    if (maxVal <= 0) maxVal = 1;
 
                     float step = (float)sparkW / (SparklineData.Length - 1);
                     for (int i = 0; i < SparklineData.Length; i++)
                     {
-                        float ratio = (float)SparklineData[i] / maxVal;
+                        float ratio = (float)(SparklineData[i] / maxVal);
                         float py = sparkY + sparkH - (ratio * sparkH);
                         pts[i] = new PointF(sparkX + i * step, py);
                     }
