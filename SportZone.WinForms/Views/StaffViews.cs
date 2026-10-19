@@ -448,7 +448,7 @@ namespace SportZone.WinForms.Views
                     Variant = i == 3 ? SFButtonVariant.Primary : SFButtonVariant.Secondary,
                     IconType = i == 3 ? SFIcon.Check : SFIcon.None,
                     Width = 150,
-                    Height = 36
+                    Height = 42
                 };
                 if (i == 2) b.Click += (s, e) => { if (btnPayQr != null) btnPayQr.PerformClick(); };
                 keys.Controls.Add(b);
@@ -648,7 +648,7 @@ namespace SportZone.WinForms.Views
         {
             Label l = new Label { Text = label, Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l);
-            SFTextBox t = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = w, Height = 36 };
+            SFTextBox t = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = w, Height = 42 };
             p.Controls.Add(t);
             return t;
         }
@@ -657,7 +657,7 @@ namespace SportZone.WinForms.Views
         {
             Label l = new Label { Text = label, Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l);
-            SFComboBox c = new SFComboBox { Location = new Point(4, y + 20), Width = w, Height = 36 };
+            SFComboBox c = new SFComboBox { Location = new Point(4, y + 20), Width = w, Height = 42 };
             c.Items.AddRange(items);
             if (c.Items.Count > 0) c.SelectedIndex = 0;
             p.Controls.Add(c);
@@ -690,21 +690,21 @@ namespace SportZone.WinForms.Views
             d.ValueChanged += (s, e) => LoadData();
             tb.Controls.Add(d);
 
-            type = new SFComboBox { Width = 160, Height = 36 };
+            type = new SFComboBox { Width = 160, Height = 42 };
             type.Items.AddRange(new object[] { "Tất cả môn", "Bóng đá", "Cầu lông", "Bóng rổ", "Pickleball" });
             type.SelectedIndex = 0;
             type.SelectedIndexChanged += (s, e) => LoadData();
             tb.Controls.Add(type);
 
-            searchBox = new SFSearchBox { PlaceholderText = "Mã đơn / khách / sân...", Width = 230, Height = 36 };
+            searchBox = new SFSearchBox { PlaceholderText = "Mã đơn / khách / sân...", Width = 230, Height = 42 };
             searchBox.TextChanged += (s, e) => LoadData();
             tb.Controls.Add(searchBox);
 
-            SFButton btnRefresh = new SFButton { Text = "F5 • Làm mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 130, Height = 36 };
+            SFButton btnRefresh = new SFButton { Text = "F5 • Làm mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 130, Height = 42 };
             btnRefresh.Click += (s, e) => LoadData();
             tb.Controls.Add(btnRefresh);
 
-            SFButton btnAdd = new SFButton { Text = "F2 • Đặt sân", Variant = SFButtonVariant.Primary, IconType = SFIcon.Plus, Width = 130, Height = 36 };
+            SFButton btnAdd = new SFButton { Text = "F2 • Đặt sân", Variant = SFButtonVariant.Primary, IconType = SFIcon.Plus, Width = 130, Height = 42 };
             btnAdd.Click += (s, e) => (FindForm() as MainForm)?.ShowView("Đặt sân tại quầy");
             tb.Controls.Add(btnAdd);
 
@@ -973,7 +973,7 @@ namespace SportZone.WinForms.Views
             k.BringToFront();
 
             FlowLayoutPanel tb = Ui.Toolbar();
-            SFButton pay = new SFButton { Text = "Thu Tiền POS", Variant = SFButtonVariant.Primary, IconType = SFIcon.Dollar, Width = 150, Height = 36 };
+            SFButton pay = new SFButton { Text = "Thu Tiền POS", Variant = SFButtonVariant.Primary, IconType = SFIcon.Dollar, Width = 150, Height = 42 };
             pay.Click += (s, e) =>
             {
                 if (grid.SelectedRows.Count > 0 && grid.SelectedRows[0].Tag is DataRow r)
@@ -1001,7 +1001,7 @@ namespace SportZone.WinForms.Views
             };
             tb.Controls.Add(pay);
 
-            SFButton confirm = new SFButton { Text = "Xác Nhận Chuyển Khoản", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Check, Width = 185, Height = 36 };
+            SFButton confirm = new SFButton { Text = "Xác Nhận Chuyển Khoản", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Check, Width = 185, Height = 42 };
             confirm.Click += (s, e) =>
             {
                 if (grid.SelectedRows.Count > 0 && grid.SelectedRows[0].Tag is DataRow r)
@@ -1041,11 +1041,11 @@ namespace SportZone.WinForms.Views
             };
             tb.Controls.Add(confirm);
 
-            SFButton refresh = new SFButton { Text = "Làm Mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 110, Height = 36 };
+            SFButton refresh = new SFButton { Text = "Làm Mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 110, Height = 42 };
             refresh.Click += (s, e) => LoadData();
             tb.Controls.Add(refresh);
 
-            searchBox = new SFSearchBox { PlaceholderText = "Mã HĐ / mã đơn / khách...", Width = 230, Height = 36 };
+            searchBox = new SFSearchBox { PlaceholderText = "Mã HĐ / mã đơn / khách...", Width = 230, Height = 42 };
             Timer debounceTimer = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
@@ -1211,7 +1211,7 @@ namespace SportZone.WinForms.Views
             k.BringToFront();
 
             FlowLayoutPanel tb = Ui.Toolbar();
-            SFButton add = new SFButton { Text = "Thêm Khách", Variant = SFButtonVariant.Primary, IconType = SFIcon.Plus, Width = 150, Height = 36 };
+            SFButton add = new SFButton { Text = "Thêm Khách", Variant = SFButtonVariant.Primary, IconType = SFIcon.Plus, Width = 150, Height = 42 };
             add.Click += (s, e) =>
             {
                 if (new CustomerRegisterForm().ShowDialog(this) == DialogResult.OK)
@@ -1219,7 +1219,7 @@ namespace SportZone.WinForms.Views
             };
             tb.Controls.Add(add);
 
-            SFButton account = new SFButton { Text = "Cấp Tài Khoản App", Variant = SFButtonVariant.Secondary, IconType = SFIcon.User, Width = 165, Height = 36 };
+            SFButton account = new SFButton { Text = "Cấp Tài Khoản App", Variant = SFButtonVariant.Secondary, IconType = SFIcon.User, Width = 165, Height = 42 };
             account.Click += (s, e) =>
             {
                 if (new CustomerRegisterForm().ShowDialog(this) == DialogResult.OK)
@@ -1227,11 +1227,11 @@ namespace SportZone.WinForms.Views
             };
             tb.Controls.Add(account);
 
-            SFButton refresh = new SFButton { Text = "Làm Mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 110, Height = 36 };
+            SFButton refresh = new SFButton { Text = "Làm Mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 110, Height = 42 };
             refresh.Click += (s, e) => LoadData();
             tb.Controls.Add(refresh);
 
-            searchBox = new SFSearchBox { PlaceholderText = "F3 • Tên / SĐT / mã KH...", Width = 240, Height = 36 };
+            searchBox = new SFSearchBox { PlaceholderText = "F3 • Tên / SĐT / mã KH...", Width = 240, Height = 42 };
             searchBox.TextChanged += (s, e) => LoadData();
             tb.Controls.Add(searchBox);
             Controls.Add(tb);
@@ -1360,11 +1360,11 @@ namespace SportZone.WinForms.Views
             notice.BringToFront();
 
             FlowLayoutPanel tb = Ui.Toolbar();
-            s = new SFSearchBox { PlaceholderText = "Tìm mã / tên sân...", Width = 230, Height = 36 };
+            s = new SFSearchBox { PlaceholderText = "Tìm mã / tên sân...", Width = 230, Height = 42 };
             s.TextChanged += (sender, e) => LoadData();
             tb.Controls.Add(s);
 
-            SFButton check = new SFButton { Text = "Kiểm Tra Lịch Trống", Variant = SFButtonVariant.Primary, IconType = SFIcon.Calendar, Width = 175, Height = 36 };
+            SFButton check = new SFButton { Text = "Kiểm Tra Lịch Trống", Variant = SFButtonVariant.Primary, IconType = SFIcon.Calendar, Width = 175, Height = 42 };
             check.Click += (sender, e) => LoadData();
             tb.Controls.Add(check);
             Controls.Add(tb);
@@ -1595,11 +1595,11 @@ namespace SportZone.WinForms.Views
             Controls.Add(Ui.Header("Thống Kê Ca Trực & Báo Cáo Nhanh", "Doanh thu, lượt đặt, phương thức thanh toán và đối soát theo ca nhân viên hiện tại."));
 
             FlowLayoutPanel tb = Ui.Toolbar();
-            SFButton show = new SFButton { Text = "Xem Báo Cáo", Variant = SFButtonVariant.Primary, IconType = SFIcon.Chart, Width = 140, Height = 36 };
+            SFButton show = new SFButton { Text = "Xem Báo Cáo", Variant = SFButtonVariant.Primary, IconType = SFIcon.Chart, Width = 140, Height = 42 };
             show.Click += (s, e) => LoadData();
             tb.Controls.Add(show);
 
-            SFButton handover = new SFButton { Text = "Bàn Giao / Đóng Ca (F8)", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Clock, Width = 190, Height = 36 };
+            SFButton handover = new SFButton { Text = "Bàn Giao / Đóng Ca (F8)", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Clock, Width = 190, Height = 42 };
             handover.Click += (s, e) => new StaffShiftDialog().ShowDialog(this);
             tb.Controls.Add(handover);
             Controls.Add(tb);
@@ -1896,7 +1896,7 @@ namespace SportZone.WinForms.Views
         {
             Label l = new Label { Text = label, Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l);
-            box = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = 380, Height = 36, ReadOnly = ro };
+            box = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = 380, Height = 42, ReadOnly = ro };
             p.Controls.Add(box);
         }
     }

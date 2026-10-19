@@ -96,7 +96,7 @@ namespace SportZone.WinForms.Dialogs
                     Text = "", 
                     Location = new Point(4, y + 20), 
                     Width = Math.Max(260, p.ClientSize.Width - 16), 
-                    Height = 36, 
+                    Height = 42, 
                     Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                     UseSystemPasswordChar = i >= 4 
                 };
@@ -244,7 +244,7 @@ namespace SportZone.WinForms.Dialogs
             { 
                 Location = new Point(4, y + 20), 
                 Width = Math.Max(260, p.ClientSize.Width - 16), 
-                Height = 36, 
+                Height = 42, 
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 UseSystemPasswordChar = true, 
                 Text = "" 

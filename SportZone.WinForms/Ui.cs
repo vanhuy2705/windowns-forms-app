@@ -206,7 +206,7 @@ namespace SportZone.WinForms
             return new FlowLayoutPanel
             {
                 Dock = DockStyle.Top,
-                Height = 52,
+                Height = 56,
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = false,
                 Padding = new Padding(0, 2, 0, 10),
