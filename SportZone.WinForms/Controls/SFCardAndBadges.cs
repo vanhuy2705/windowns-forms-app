@@ -98,7 +98,7 @@ namespace SportZone.WinForms.Controls
         public bool IsPositiveTrend { get; set; } = true;
         public Color AccentColor { get; set; } = Colors.Primary;
         public SFIcon Icon { get; set; } = SFIcon.TrendingUp;
-        public int[] SparklineData { get; set; } = new int[] { 20, 35, 28, 45, 40, 60, 52, 70, 65, 88 };
+        public int[] SparklineData { get; set; } = null;
 
         public SFMetricCard()
         {

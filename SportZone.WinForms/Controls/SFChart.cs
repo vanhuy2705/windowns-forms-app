@@ -8,10 +8,10 @@ namespace SportZone.WinForms.Controls
 {
     public class SFChart : Control
     {
-        public string Title { get; set; } = "Doanh thu theo khung giờ";
-        public Color AccentColor { get; set; } = Colors.Emerald;
-        public string[] XLabels { get; set; } = new[] { "T2", "T3", "T4", "T5", "T6", "T7", "CN" };
-        public double[] Values { get; set; } = new double[] { 8.5, 12.2, 9.8, 14.5, 13.8, 19.4, 22.1 };
+        public string Title { get; set; } = "Doanh thu theo khung thời gian";
+        public Color AccentColor { get; set; } = Colors.Primary;
+        public string[] XLabels { get; set; } = new string[0];
+        public double[] Values { get; set; } = new double[0];
         public double MaxValue { get; set; } = 25.0; // in millions
 
         private int hoveredIndex = -1;
@@ -191,13 +191,12 @@ namespace SportZone.WinForms.Controls
                     g.DrawEllipse(hiRing, hit.X - 6, hit.Y - 6, 12, 12);
                 }
 
-                // Tooltip Box
+                // Tooltip Box — chỉ hiển thị dữ liệu thật (ngày + doanh thu), không bịa số liệu
                 string dayName = XLabels != null && hoveredIndex < XLabels.Length ? XLabels[hoveredIndex] : "";
                 string valStr = $"{Values[hoveredIndex]:0.0} triệu đ";
-                string ordersStr = $"18 lượt đặt";
 
                 int tipW = 125;
-                int tipH = 58;
+                int tipH = 44;
                 int tipX = (int)hit.X - tipW / 2;
                 int tipY = (int)hit.Y - tipH - 12;
 
@@ -209,30 +208,28 @@ namespace SportZone.WinForms.Controls
                 GraphicsUtility.DrawShadow(g, tipRect, 8, 1);
 
                 using (GraphicsPath tipPath = GraphicsUtility.CreateRoundedRectangle(tipRect, 8))
-                using (SolidBrush tipBg = new SolidBrush(ColorTranslator.FromHtml("#07111F")))
+                using (SolidBrush tipBg = new SolidBrush(ColorTranslator.FromHtml("#101828")))
                 {
                     g.FillPath(tipBg, tipPath);
                 }
 
                 Rectangle textR1 = new Rectangle(tipX + 10, tipY + 6, tipW - 20, 15);
-                Rectangle textR2 = new Rectangle(tipX + 10, tipY + 22, tipW - 20, 18);
-                Rectangle textR3 = new Rectangle(tipX + 10, tipY + 40, tipW - 20, 14);
+                Rectangle textR2 = new Rectangle(tipX + 10, tipY + 22, tipW - 20, 16);
 
-                TextRenderer.DrawText(g, "Thứ " + dayName, Typography.Micro, textR1, Colors.SidebarText, TextFormatFlags.Left);
-                TextRenderer.DrawText(g, valStr, Typography.SecondaryBold, textR2, Color.White, TextFormatFlags.Left);
-                TextRenderer.DrawText(g, ordersStr, Typography.Micro, textR3, Colors.Mint, TextFormatFlags.Left);
+                TextRenderer.DrawText(g, dayName, Typography.Micro, textR1, Colors.SidebarText, TextFormatFlags.Left);
+                TextRenderer.DrawText(g, valStr, Typography.SecondaryBold, textR2, Colors.TextInverse, TextFormatFlags.Left);
             }
         }
     }
 
     public class SFDonut : Control
     {
-        public string CenterMetric { get; set; } = "72%";
-        public string CenterLabel { get; set; } = "Công suất";
+        public string CenterMetric { get; set; } = "—";
+        public string CenterLabel { get; set; } = "Doanh thu";
 
-        public string[] Categories { get; set; } = new[] { "Bóng đá", "Cầu lông", "Bóng chuyền", "Tennis" };
-        public float[] Percentages { get; set; } = new[] { 45f, 25f, 18f, 12f };
-        public Color[] SliceColors { get; set; } = new[] { Colors.Emerald, Colors.Cyan, Colors.Orange, Colors.Purple };
+        public string[] Categories { get; set; } = new string[0];
+        public float[] Percentages { get; set; } = new float[0];
+        public Color[] SliceColors { get; set; } = new[] { Colors.Primary, Colors.Accent, Colors.Warning, Colors.Purple };
 
         public SFDonut()
         {

@@ -22,6 +22,7 @@ namespace SportZone.WinForms.Views
         private SFChart revChart;
         private SFDonut donutChart;
         private SFDataGridView gridToday;
+        private SFEmptyState schedEmpty;
 
         public DashboardView()
         {
@@ -65,7 +66,7 @@ namespace SportZone.WinForms.Views
 
             sub = new Label
             {
-                Text = "Chào buổi sáng, Quản trị viên. SPORTFIELD đang hoạt động ổn định và sẵn sàng tiếp nhận lượt đặt.",
+                Text = "Đang tải dữ liệu vận hành từ CSDL...",
                 Font = Typography.Secondary,
                 ForeColor = Colors.TextSecondary,
                 Location = new Point(1, 32),
@@ -131,7 +132,7 @@ namespace SportZone.WinForms.Views
             rightControls.Controls.Add(chipWeek);
             rightControls.Controls.Add(chipToday);
 
-            activeBadge = SFBadge.Create("● 10/10 SÂN ĐANG HOẠT ĐỘNG", Colors.DeepEmerald, Colors.SuccessBg);
+            activeBadge = SFBadge.Create("● --/-- SÂN SẴN SÀNG", Colors.Primary, Colors.SelectedBg);
             activeBadge.Margin = new Padding(8, 6, 8, 2);
             rightControls.Controls.Add(activeBadge);
 
@@ -148,51 +149,49 @@ namespace SportZone.WinForms.Views
             };
             for (int i = 0; i < 4; i++) kpiRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
 
+            // Giá trị hiển thị ban đầu là placeholder trung tính; toàn bộ số liệu
+            // được nạp thật từ CSDL trong LoadDataFromDatabase (không bịa số liệu).
             kpi1 = new SFMetricCard
             {
-                Title = "DOANH THU HÔM NAY",
-                Value = "1.340.000 đ",
-                TrendText = "↑ 14,2% hôm qua",
+                Title = "DOANH THU KỲ CHỌN",
+                Value = "—",
+                TrendText = "",
                 IsPositiveTrend = true,
-                AccentColor = Colors.Emerald,
-                Icon = SFIcon.Dollar,
-                SparklineData = new[] { 22, 28, 35, 30, 42, 50, 48, 62, 58, 74 }
+                AccentColor = Colors.Primary,
+                Icon = SFIcon.Dollar
             };
             kpiRow.Controls.Add(kpi1, 0, 0);
 
             kpi2 = new SFMetricCard
             {
                 Title = "LƯỢT ĐẶT SÂN",
-                Value = "3 đơn",
-                TrendText = "↑ 3 đơn trực tuyến",
+                Value = "—",
+                TrendText = "",
                 IsPositiveTrend = true,
-                AccentColor = Colors.Cyan,
-                Icon = SFIcon.Ticket,
-                SparklineData = new[] { 15, 20, 18, 26, 32, 29, 38, 44, 40, 48 }
+                AccentColor = Colors.Accent,
+                Icon = SFIcon.Ticket
             };
             kpiRow.Controls.Add(kpi2, 1, 0);
 
             kpi3 = new SFMetricCard
             {
-                Title = "SÂN ĐANG SỬ DỤNG",
-                Value = "3 / 10",
-                TrendText = "7 sân còn trống",
+                Title = "SÂN ĐANG HOẠT ĐỘNG",
+                Value = "—",
+                TrendText = "",
                 IsPositiveTrend = true,
                 AccentColor = Colors.ElectricBlue,
-                Icon = SFIcon.Field,
-                SparklineData = new[] { 8, 9, 11, 10, 12, 11, 13, 14, 12, 12 }
+                Icon = SFIcon.Field
             };
             kpiRow.Controls.Add(kpi3, 2, 0);
 
             kpi4 = new SFMetricCard
             {
-                Title = "CÔNG SUẤT KHU SÂN",
-                Value = "82%",
-                TrendText = "↑ Khai thác tối ưu",
+                Title = "GIÁ TRỊ ĐƠN BÌNH QUÂN",
+                Value = "—",
+                TrendText = "",
                 IsPositiveTrend = true,
-                AccentColor = Colors.Amber,
-                Icon = SFIcon.TrendingUp,
-                SparklineData = new[] { 60, 65, 70, 68, 75, 78, 80, 84, 80, 82 }
+                AccentColor = Colors.Warning,
+                Icon = SFIcon.TrendingUp
             };
             kpiRow.Controls.Add(kpi4, 3, 0);
 
@@ -223,10 +222,10 @@ namespace SportZone.WinForms.Views
             revChart = new SFChart
             {
                 Dock = DockStyle.Fill,
-                AccentColor = Colors.Emerald,
-                XLabels = new[] { "01/10", "02/10", "03/10", "04/10", "05/10", "06/10", "07/10" },
-                Values = new double[] { 14.2, 18.5, 16.8, 22.4, 26.8, 38.4, 42.1 },
-                MaxValue = 50.0
+                AccentColor = Colors.Primary,
+                XLabels = new string[0],
+                Values = new double[0],
+                MaxValue = 1.0
             };
             revCard.Controls.Add(revChart);
             revChart.BringToFront();
@@ -242,11 +241,11 @@ namespace SportZone.WinForms.Views
             donutChart = new SFDonut
             {
                 Dock = DockStyle.Fill,
-                CenterMetric = "82%",
-                CenterLabel = "Công suất",
-                Categories = new[] { "Bóng đá", "Cầu lông", "Bóng rổ", "Pickleball" },
-                Percentages = new[] { 68f, 18f, 8f, 6f },
-                SliceColors = new[] { Colors.Emerald, Colors.Cyan, Colors.Orange, Colors.Purple }
+                CenterMetric = "—",
+                CenterLabel = "Doanh thu",
+                Categories = new string[0],
+                Percentages = new float[0],
+                SliceColors = new[] { Colors.Primary, Colors.Accent, Colors.Warning, Colors.Purple }
             };
             donutCard.Controls.Add(donutChart);
             donutChart.BringToFront();
@@ -294,6 +293,23 @@ namespace SportZone.WinForms.Views
                     }
                 }
             };
+
+            // V9: cột tiền căn phải
+            gridToday.Columns["C3"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            gridToday.Columns["C3"].DefaultCellStyle.Format = "N0";
+
+            // Trạng thái trống: hiển thị khi CSDL không trả về lịch hôm nay
+            schedEmpty = new SFEmptyState
+            {
+                Icon = SFIcon.Clock,
+                Title = "Chưa có lịch thi đấu hôm nay",
+                Description = "Các đơn đặt sân hôm nay sẽ hiển thị tại đây.",
+                ActionText = "",
+                BackColor = Colors.Surface
+            };
+            schedEmpty.Visible = false;
+            schedCard.Controls.Add(schedEmpty);
+            schedEmpty.BringToFront();
             schedCard.Controls.Add(gridToday);
             gridToday.BringToFront();
             bottomRow.Controls.Add(schedCard, 0, 0);
@@ -306,9 +322,9 @@ namespace SportZone.WinForms.Views
             actionCard.Controls.Add(actionHead);
 
             Panel actionList = new Panel { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Color.Transparent };
-            AddActionItem(actionList, SFIcon.Ticket, "Đơn chờ duyệt cọc online", "Đơn đặt trực tuyến chờ kiểm tra đối soát", "!", Colors.Amber, () => (FindForm() as MainForm)?.ShowView("Đặt cọc online"));
-            AddActionItem(actionList, SFIcon.Dollar, "Giao dịch quầy & POS", "Theo dõi giao dịch thu ngân và quyết toán", "POS", Colors.Cyan, () => (FindForm() as MainForm)?.ShowView("Thanh toán POS"));
-            AddActionItem(actionList, SFIcon.Clock, "Lịch thi đấu sân trực tiếp", "Kiểm tra danh sách đơn đặt sân hôm nay", "LIVE", Colors.ElectricBlue, () => (FindForm() as MainForm)?.ShowView("Quản lý đặt sân"));
+            AddActionItem(actionList, SFIcon.Ticket, "Đơn chờ duyệt cọc online", "Đơn đặt trực tuyến chờ kiểm tra đối soát", "!", Colors.Warning, () => (FindForm() as MainForm)?.ShowView("Đặt cọc online"));
+            AddActionItem(actionList, SFIcon.Dollar, "Giao dịch quầy & POS", "Theo dõi giao dịch thu ngân và quyết toán", "POS", Colors.Accent, () => (FindForm() as MainForm)?.ShowView("Hóa đơn"));
+            AddActionItem(actionList, SFIcon.Clock, "Lịch thi đấu sân trực tiếp", "Kiểm tra danh sách đơn đặt sân hôm nay", "LIVE", Colors.ElectricBlue, () => (FindForm() as MainForm)?.ShowView("Quản lý đơn"));
             AddActionItem(actionList, SFIcon.AlertCircle, "Cảnh báo tồn kho & Dịch vụ", "Kiểm tra mức tồn kho sản phẩm và nước giải khát", "KHO", Colors.Danger, () => (FindForm() as MainForm)?.ShowView("Dịch vụ & Kho"));
 
             actionCard.Controls.Add(actionList);
@@ -336,26 +352,39 @@ namespace SportZone.WinForms.Views
 
                     kpi1.Value = string.Format("{0:N0} đ", daThu > 0 ? daThu : giaTriDon);
                     kpi2.Value = string.Format("{0} đơn", tongDon);
+                    kpi4.Value = giaTriDon > 0 ? string.Format("{0:N0} đ", giaTriDon) : "—";
+                    sub.Text = string.Format("Dữ liệu tổng hợp CSDL từ {0:dd/MM/yyyy} đến {1:dd/MM/yyyy}.", tuNgay, denNgay);
 
-                    // Daily trend in table 1 if present
+                    // Daily trend in table 1 if present — thực sự từ CSDL
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
                         DataTable dtDaily = ds.Tables[1];
                         List<string> lbls = new List<string>();
                         List<double> vals = new List<double>();
+                        List<int> spark = new List<int>();
                         double maxV = 1.0;
+                        double sparkMax = 1.0;
                         foreach (DataRow row in dtDaily.Rows)
                         {
                             DateTime d = Convert.ToDateTime(row["Ngay"]);
                             double revM = Convert.ToDouble(row["DoanhThu"]) / 1000000.0;
+                            int sparkVal = row.Table.Columns.Contains("DoanhThu") && row["DoanhThu"] != DBNull.Value
+                                ? Convert.ToInt32(Convert.ToDouble(row["DoanhThu"]))
+                                : 0;
                             lbls.Add(d.ToString("dd/MM"));
                             vals.Add(Math.Round(revM, 1));
+                            spark.Add(sparkVal);
                             if (revM > maxV) maxV = revM;
+                            if (sparkVal > sparkMax) sparkMax = sparkVal;
                         }
                         revChart.XLabels = lbls.ToArray();
                         revChart.Values = vals.ToArray();
                         revChart.MaxValue = maxV * 1.25;
                         revChart.Invalidate();
+                        // Sparkline KPI doanh thu: dữ liệu thật + baseline 10 nước nếu chỉ vài điểm
+                        if (spark.Count == 1) spark.Insert(0, 0);
+                        kpi1.SparklineData = spark.ToArray();
+                        kpi1.Invalidate();
                     }
 
                     // Court categories in table 2 if present
@@ -409,7 +438,10 @@ namespace SportZone.WinForms.Views
                 // 3. Load Bookings for Today
                 DataTable dtDon = new Services.ShiftService().GetStaffTodaySchedule();
                 gridToday.Rows.Clear();
-                if (dtDon != null && dtDon.Rows.Count > 0)
+                bool hasSchedule = dtDon != null && dtDon.Rows.Count > 0;
+                schedEmpty.Visible = !hasSchedule;
+                gridToday.Visible = hasSchedule;
+                if (hasSchedule)
                 {
                     foreach (DataRow row in dtDon.Rows)
                     {
@@ -434,6 +466,14 @@ namespace SportZone.WinForms.Views
             }
             catch (Exception ex)
             {
+                // Trạng thái lỗi: thông báo trung thực, không hiển thị số liệu ảo
+                sub.Text = "Không tải được dữ liệu vận hành từ CSDL. Nhấn làm mới để thử lại.";
+                kpi1.Value = "—"; kpi2.Value = "—"; kpi3.Value = "—"; kpi4.Value = "—";
+                activeBadge.Text = "● CSDL LỖI";
+                schedEmpty.Title = "Lỗi tải dữ liệu";
+                schedEmpty.Description = "Kiểm tra kết nối SQL Server rồi nhấn làm mới.";
+                schedEmpty.Visible = true;
+                gridToday.Visible = false;
                 Helpers.AppLogger.LogError(ex, "DASHBOARD_LOAD");
             }
         }

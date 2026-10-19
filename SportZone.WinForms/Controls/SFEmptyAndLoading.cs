@@ -45,6 +45,9 @@ namespace SportZone.WinForms.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            // Ẩn nút hành động khi ActionText rỗng (trạng thái trống/thông tin thuần túy)
+            btnAction.Visible = !string.IsNullOrWhiteSpace(ActionText);
+
             base.OnPaint(e);
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
