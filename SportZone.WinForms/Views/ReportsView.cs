@@ -95,10 +95,10 @@ namespace SportZone.WinForms.Views
             {
                 kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             }
-            cardRev = new SFMetricCard("DOANH THU THÁNG", "1.340.000đ", "Tháng 10/2026", SFIcon.Dollar, Colors.Emerald, "+12,4% YoY");
-            cardOrders = new SFMetricCard("TỔNG LƯỢT ĐẶT", "3", "Đơn hoàn tất", SFIcon.Calendar, Colors.ElectricBlue, "+8,4% tăng");
-            cardOccupancy = new SFMetricCard("CÔNG SUẤT TB", "78,5%", "Giờ vàng đạt 89%", SFIcon.Chart, Colors.Purple, "Khai thác tối ưu");
-            cardService = new SFMetricCard("DỊCH VỤ & F&B", "250.000đ", "Chiếm 10,9% tổng thu", SFIcon.Star, Colors.Amber, "+18% lợi nhuận");
+            cardRev = new SFMetricCard("DOANH THU KỲ CHỌN", "—", "Từ CSDL theo kỳ lọc", SFIcon.Dollar, Colors.Emerald);
+            cardOrders = new SFMetricCard("TỔNG LƯỢT ĐẶT", "—", "Đơn & hóa đơn kỳ chọn", SFIcon.Calendar, Colors.ElectricBlue);
+            cardOccupancy = new SFMetricCard("TỶ TRỌNG TOP 1", "—", "Bộ môn dẫn đầu doanh thu", SFIcon.Chart, Colors.Purple);
+            cardService = new SFMetricCard("DỊCH VỤ & F&B", "—", "Tổng doanh thu dịch vụ", SFIcon.Star, Colors.Amber);
 
             kpiPanel.Controls.Add(cardRev, 0, 0);
             kpiPanel.Controls.Add(cardOrders, 1, 0);
@@ -141,10 +141,7 @@ namespace SportZone.WinForms.Views
             chartRevenue = new SFChart
             {
                 Dock = DockStyle.Fill,
-                AccentColor = Colors.Emerald,
-                XLabels = new[] { "01/10", "03/10", "05/10", "07/10", "10/10", "15/10", "20/10" },
-                Values = new double[] { 8.5, 11.2, 14.8, 12.0, 16.5, 19.4, 23.2 },
-                MaxValue = 26.0
+                AccentColor = Colors.Emerald
             };
             cardChart.Controls.Add(chartRevenue);
             chartRevenue.BringToFront();
@@ -170,10 +167,8 @@ namespace SportZone.WinForms.Views
             donutSport = new SFDonut
             {
                 Dock = DockStyle.Fill,
-                CenterMetric = "78%",
-                CenterLabel = "Công suất",
-                Categories = new[] { "Bóng đá (88%)", "Cầu lông (12%)" },
-                Percentages = new float[] { 88.2f, 11.8f },
+                CenterMetric = "—",
+                CenterLabel = "Doanh thu",
                 SliceColors = new[] { Colors.Emerald, Colors.ElectricBlue, Colors.Amber, Colors.Purple }
             };
             cardDonut.Controls.Add(donutSport);
@@ -206,7 +201,7 @@ namespace SportZone.WinForms.Views
             gridTopFields.Columns.Add("Orders", "Lượt đặt");
             gridTopFields.Columns.Add("Hours", "Giờ thi đấu");
             gridTopFields.Columns.Add("Revenue", "Doanh thu thực");
-            gridTopFields.Columns.Add("Occupancy", "Công suất");
+            gridTopFields.Columns.Add("Share", "Tỷ trọng doanh thu");
             gridTopFields.Columns.Add("Rank", "Xếp hạng");
 
             gridTopFields.Columns["Field"].Width = 200;
@@ -214,8 +209,14 @@ namespace SportZone.WinForms.Views
             gridTopFields.Columns["Orders"].Width = 100;
             gridTopFields.Columns["Hours"].Width = 110;
             gridTopFields.Columns["Revenue"].Width = 150;
-            gridTopFields.Columns["Occupancy"].Width = 110;
+            gridTopFields.Columns["Share"].Width = 140;
             gridTopFields.Columns["Rank"].Width = 100;
+
+            // V9: số lượng/công suất/tiền căn phải, biệt thị định dạng N0
+            gridTopFields.Columns["Orders"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            gridTopFields.Columns["Hours"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            gridTopFields.Columns["Revenue"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            gridTopFields.Columns["Share"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
             cardTable.Controls.Add(gridTopFields);
             gridTopFields.BringToFront();
@@ -269,7 +270,6 @@ namespace SportZone.WinForms.Views
 
                     cardRev.Value = string.Format("{0:N0} đ", daThu > 0 ? daThu : tongGiaTri);
                     cardOrders.Value = string.Format("{0} đơn", tongDon);
-
                     // Daily trend in table 1
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                     {
@@ -322,9 +322,14 @@ namespace SportZone.WinForms.Views
                                 string.Format("{0} lượt", luotDat),
                                 string.Format("{0:0.#} giờ", gio),
                                 string.Format("{0:N0}đ", rev),
-                                string.Format("{0:0.#}%", 75 + rank * 4),
+                                string.Format("{0:0.#}%", pct),
                                 string.Format("TOP {0}", rank++)
                             );
+                            if (rank == 2)
+                            {
+                                cardOccupancy.Value = string.Format("{0:0.#}%", pct);
+                                cardOccupancy.SubValue = "Bộ môn dẫn đầu doanh thu kỳ chọn";
+                            }
                         }
 
                         if (cats.Count > 0)
@@ -343,18 +348,26 @@ namespace SportZone.WinForms.Views
                         {
                             dvuTotal += row["DoanhThuDichVu"] != DBNull.Value ? Convert.ToDecimal(row["DoanhThuDichVu"]) : 0;
                         }
-                        if (dvuTotal > 0)
-                        {
-                            cardService.Value = string.Format("{0:N0} đ", dvuTotal);
-                        }
+                        cardService.Value = string.Format("{0:N0} đ", dvuTotal);
                     }
 
                     return;
                 }
+
+                // Không có số liệu đứng cấp nào cho kỳ → trạng thái trống trung thực
+                Helpers.AppLogger.LogWarning("REPORTS_EMPTY");
             }
             catch (Exception ex)
             {
                 Helpers.AppLogger.LogError(ex, "LOAD_REPORTS");
+                cardRev.Value = "—";
+                cardOrders.Value = "—";
+                cardOccupancy.Value = "—";
+                cardService.Value = "—";
+                chartRevenue.Values = new double[0];
+                donutSport.Categories = new string[0];
+                donutSport.Invalidate();
+                SFToast.Show(this, "Không tải được báo cáo từ CSDL. Kiểm tra kết nối SQL Server rồi nhấn làm mới.", "LỖI DỮ LIỆU", SFIcon.AlertCircle, Colors.Danger);
             }
 
             gridTopFields.Rows.Clear();

@@ -19,6 +19,8 @@ namespace SportZone.WinForms.Views
         private string tierFilter = "ALL";
         private string searchKeyword = "";
 
+        private Timer tmrSearchDebounce;
+
         public CustomerManagementView()
         {
             Dock = DockStyle.Fill;
@@ -26,6 +28,17 @@ namespace SportZone.WinForms.Views
             Font = Typography.Body;
             BuildUI();
             LoadCustomersFromDatabase();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && tmrSearchDebounce != null)
+            {
+                tmrSearchDebounce.Stop();
+                tmrSearchDebounce.Dispose();
+                tmrSearchDebounce = null;
+            }
+            base.Dispose(disposing);
         }
 
         private void BuildUI()
@@ -117,7 +130,7 @@ namespace SportZone.WinForms.Views
                 Height = 38
             };
 
-            Timer debounceTimer = new Timer { Interval = 300 };
+            Timer debounceTimer = tmrSearchDebounce = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
                 debounceTimer.Stop();
@@ -150,10 +163,10 @@ namespace SportZone.WinForms.Views
             {
                 kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             }
-            kpiPanel.Controls.Add(new SFMetricCard("TỔNG KHÁCH HÀNG", "7", "Đã định danh", SFIcon.User, Colors.ElectricBlue, "+6 tài khoản mới"), 0, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("THÀNH VIÊN VIP", "4", "Gold & Silver", SFIcon.Star, Colors.Purple, "Chiếm 57%"), 1, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("SỐ DƯ VÍ CỌC", "6,65tr", "Ký quỹ giữ chỗ", SFIcon.Dollar, Colors.Emerald, "An toàn 100%"), 2, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("CHI TIÊU BÌNH QUÂN", "13,6tr", "/ khách hoạt động", SFIcon.Chart, Colors.Amber, "+14% YoY"), 3, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("TỔNG KHÁCH HÀNG", "—", "Đã định danh", SFIcon.User, Colors.ElectricBlue), 0, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("THÀNH VIÊN VIP", "—", "Gold & Silver", SFIcon.Star, Colors.Purple), 1, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("SỐ DƯ VÍ CỌC", "—", "Ký quỹ giữ chỗ", SFIcon.Dollar, Colors.Emerald), 2, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("CHI TIÊU BÌNH QUÂN", "—", "/ khách hoạt động", SFIcon.Chart, Colors.Amber), 3, 0);
 
             Controls.Add(kpiPanel);
             kpiPanel.BringToFront();

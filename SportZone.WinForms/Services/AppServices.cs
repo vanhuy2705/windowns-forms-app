@@ -385,10 +385,26 @@ namespace SportZone.WinForms.Services
 
         public void CancelBooking(long donDatSanId, int? taiKhoanId, string lyDo)
         {
-            if (AppSession.Current != null && !AppSession.Current.IsCustomer)
+            if (AppSession.Current == null || !AppSession.Current.IsLoggedIn)
+            {
+                throw new UnauthorizedAccessException("Yêu cầu đăng nhập trước khi thực hiện hủy đơn.");
+            }
+
+            if (AppSession.Current.IsCustomer)
+            {
+                int? chuDonKhachHangId = _repo.GetBookingCustomerId(donDatSanId);
+                if (!chuDonKhachHangId.HasValue ||
+                    !AppSession.Current.KhachHangID.HasValue ||
+                    chuDonKhachHangId.Value != AppSession.Current.KhachHangID.Value)
+                {
+                    throw new UnauthorizedAccessException("Không có quyền hủy đơn đặt sân của khách hàng khác.");
+                }
+            }
+            else
             {
                 SessionGuard.RequirePermission("BOOKING_CANCEL");
             }
+
             _repo.CancelBooking(donDatSanId, taiKhoanId, lyDo);
         }
 
@@ -464,6 +480,25 @@ namespace SportZone.WinForms.Services
         public DataTable GetBankAccounts()
         {
             return _payRepo.GetBankAccounts();
+        }
+
+        public DataTable GetInvoiceTotals(long hoaDonId)
+        {
+            return _invRepo.GetInvoiceTotals(hoaDonId);
+        }
+
+        public DataTable GetInvoiceTotalsByBooking(long donDatSanId)
+        {
+            return _invRepo.GetInvoiceTotalsByBooking(donDatSanId);
+        }
+
+        public decimal? GetInvoiceTotal(long hoaDonId)
+        {
+            DataTable dt = _invRepo.GetInvoiceTotals(hoaDonId);
+            if (dt == null || dt.Rows.Count == 0) return null;
+            object val = dt.Rows[0]["TongTien"];
+            if (val == null || val == DBNull.Value) return null;
+            return Convert.ToDecimal(val);
         }
     }
 

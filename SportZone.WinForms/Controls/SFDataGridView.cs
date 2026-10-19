@@ -86,6 +86,17 @@ namespace SportZone.WinForms.Controls
             {
                 int measured = TextRenderer.MeasureText(e.Column.HeaderText ?? "", ColumnHeadersDefaultCellStyle.Font ?? Typography.SecondaryBold).Width + 28;
                 e.Column.MinimumWidth = Math.Max(measured, 65);
+
+                // Tiền/số lượng → căn phải toàn cột (header + cell)
+                string h = (e.Column.HeaderText ?? "").ToLower();
+                if (h.Contains("giá") || h.Contains("tổng") || h.Contains("tiền") || h.Contains("doanh thu") || h.Contains("share") || h.Contains("lượt") || h.Contains("giờ") || h.Contains("số dư") || h.Contains("amount") || h.Contains("total") || h.Contains("revenue") || h.Contains("orders") || h.Contains("hours") || h.Contains("price"))
+                {
+                    e.Column.DefaultCellStyle = new DataGridViewCellStyle(e.Column.DefaultCellStyle)
+                    {
+                        Alignment = DataGridViewContentAlignment.MiddleRight
+                    };
+                    e.Column.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
+                }
             }
         }
 
@@ -144,12 +155,14 @@ namespace SportZone.WinForms.Controls
                     return;
                 }
 
-                // If Price column, color bold emerald
+                // If Price column, color bold emerald, honor per-column alignment
                 if (colHeader.Contains("giá") || colHeader.Contains("tổng") || colHeader.Contains("thu") || colHeader.Contains("chi tiêu"))
                 {
                     e.PaintBackground(e.CellBounds, (e.State & DataGridViewElementStates.Selected) != 0);
+                    TextFormatFlags tf = (e.ColumnIndex >= 0 && Columns[e.ColumnIndex].DefaultCellStyle != null && Columns[e.ColumnIndex].DefaultCellStyle.Alignment == DataGridViewContentAlignment.MiddleRight)
+                        ? TextFormatFlags.Right : TextFormatFlags.Left;
                     TextRenderer.DrawText(e.Graphics, val, Typography.BodyBold, e.CellBounds,
-                        Colors.DeepEmerald, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                        Colors.DeepEmerald, tf | TextFormatFlags.VerticalCenter);
                     e.Handled = true;
                     return;
                 }

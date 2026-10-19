@@ -157,7 +157,7 @@ namespace SportZone.WinForms.Dialogs
             };
             Label lblWarn = new Label
             {
-                Text = "⚠️ Chú ý: Mật khẩu tạm thời sẽ kích hoạt cờ 'BẮT BUỘC ĐỔI MẬT KHẨU'. Nhân viên phải tự đặt lại mật khẩu mới ngay trong lần đăng nhập đầu tiên.",
+                Text = "Lưu ý: Mật khẩu tạm thời sẽ kích hoạt cờ 'BẮT BUỘC ĐỔI MẬT KHẨU'. Nhân viên phải tự đặt lại mật khẩu mới ngay trong lần đăng nhập đầu tiên.",
                 Font = Typography.MicroBold,
                 ForeColor = Colors.Warning,
                 Dock = DockStyle.Fill

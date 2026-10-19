@@ -45,6 +45,9 @@ namespace SportZone.WinForms.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            // Ẩn nút hành động khi ActionText rỗng (trạng thái trống/thông tin thuần túy)
+            btnAction.Visible = !string.IsNullOrWhiteSpace(ActionText);
+
             base.OnPaint(e);
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -101,6 +104,16 @@ namespace SportZone.WinForms.Controls
 
         public void Start() { Visible = true; BringToFront(); timer.Start(); }
         public void Stop() { timer.Stop(); Visible = false; }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                timer.Stop();
+                timer.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
         protected override void OnPaint(PaintEventArgs e)
         {

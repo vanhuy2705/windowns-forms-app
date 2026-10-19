@@ -24,6 +24,7 @@ namespace SportZone.WinForms.Views
         private SFMetricCard cardPendingTransfer;
         private SFMetricCard cardSettledRate;
         private DataTable cachedData;
+        private Timer tmrSearchDebounce;
 
         public AdminInvoicesView()
         {
@@ -32,6 +33,17 @@ namespace SportZone.WinForms.Views
             Font = Typography.Body;
             BuildUI();
             LoadDataFromDatabase();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && tmrSearchDebounce != null)
+            {
+                tmrSearchDebounce.Stop();
+                tmrSearchDebounce.Dispose();
+                tmrSearchDebounce = null;
+            }
+            base.Dispose(disposing);
         }
 
         private void BuildUI()
@@ -144,7 +156,7 @@ namespace SportZone.WinForms.Views
                 Height = 38
             };
 
-            Timer debounceTimer = new Timer { Interval = 300 };
+            Timer debounceTimer = tmrSearchDebounce = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
                 debounceTimer.Stop();
@@ -170,10 +182,10 @@ namespace SportZone.WinForms.Views
             };
             for (int i = 0; i < 4; i++) kpi.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
 
-            cardTotalToday = new SFMetricCard("TỔNG THU HÔM NAY", "0 đ", "Hóa đơn hoàn tất", SFIcon.Dollar, Colors.Emerald, "+15% YoY");
+            cardTotalToday = new SFMetricCard("TỔNG THU HÔM NAY", "0 đ", "Hóa đơn hoàn tất", SFIcon.Dollar, Colors.Emerald);
             cardRemaining = new SFMetricCard("CÒN PHẢI THU", "0 đ", "Đơn đang còn dư nợ", SFIcon.Clock, Colors.Amber, "Thu khi trả sân");
             cardPendingTransfer = new SFMetricCard("CHỜ XÁC NHẬN CK", "0 đ", "Giao dịch VietQR", SFIcon.Bell, Colors.ElectricBlue);
-            cardSettledRate = new SFMetricCard("TỶ LỆ QUYẾT TOÁN", "100%", "Đơn thanh toán đủ", SFIcon.Check, Colors.Purple);
+            cardSettledRate = new SFMetricCard("TỶ LỆ QUYẾT TOÁN", "—", "Đơn thanh toán đủ", SFIcon.Check, Colors.Purple);
 
             kpi.Controls.Add(cardTotalToday, 0, 0);
             kpi.Controls.Add(cardRemaining, 1, 0);
@@ -190,7 +202,7 @@ namespace SportZone.WinForms.Views
                 Padding = new Padding(16)
             };
 
-            Panel gridHeader = new Panel { Dock = DockStyle.Top, Height = 36 };
+            Panel gridHeader = new Panel { Dock = DockStyle.Top, Height = 42 };
             Label lblGridTitle = new Label
             {
                 Text = "Danh Sách Hóa Đơn & Giao Dịch Trong Ngày (Nhấp đúp dòng để mở mã QR thanh toán)",
@@ -420,6 +432,7 @@ namespace SportZone.WinForms.Views
         private SFSearchBox search;
         private DataTable cachedData;
         private int? _selectedKhuyenMaiId = null;
+        private Timer tmrSearchDebounce;
 
         public PromotionsView()
         {
@@ -428,6 +441,17 @@ namespace SportZone.WinForms.Views
             Font = Typography.Body;
             BuildUI();
             LoadDataFromDatabase();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && tmrSearchDebounce != null)
+            {
+                tmrSearchDebounce.Stop();
+                tmrSearchDebounce.Dispose();
+                tmrSearchDebounce = null;
+            }
+            base.Dispose(disposing);
         }
 
         private void BuildUI()
@@ -444,7 +468,7 @@ namespace SportZone.WinForms.Views
             tb.Controls.Add(btnRefresh);
 
             search = new SFSearchBox { PlaceholderText = "Mã / tên chương trình...", Width = 230, Height = 38 };
-            Timer debounceTimer = new Timer { Interval = 300 };
+            Timer debounceTimer = tmrSearchDebounce = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
                 debounceTimer.Stop();
@@ -584,37 +608,37 @@ namespace SportZone.WinForms.Views
             int y = 8;
             Label l1 = new Label { Text = "Mã khuyến mãi *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l1);
-            txtCode = new SFTextBox { Text = "KM-GIOVANG", Location = new Point(4, y + 20), Width = 310, Height = 36 };
+            txtCode = new SFTextBox { Text = "KM-GIOVANG", Location = new Point(4, y + 20), Width = 310, Height = 42 };
             p.Controls.Add(txtCode);
             y += 62;
 
             Label l2 = new Label { Text = "Tên chương trình *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l2);
-            txtName = new SFTextBox { Text = "Giờ vàng trưa các ngày T2-T6", Location = new Point(4, y + 20), Width = 310, Height = 36 };
+            txtName = new SFTextBox { Text = "Giờ vàng trưa các ngày T2-T6", Location = new Point(4, y + 20), Width = 310, Height = 42 };
             p.Controls.Add(txtName);
             y += 62;
 
             Label l3 = new Label { Text = "Tỷ lệ giảm (% hoặc VND) *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l3);
-            txtDiscount = new SFTextBox { Text = "15", Location = new Point(4, y + 20), Width = 310, Height = 36 };
+            txtDiscount = new SFTextBox { Text = "15", Location = new Point(4, y + 20), Width = 310, Height = 42 };
             p.Controls.Add(txtDiscount);
             y += 62;
 
             Label l4 = new Label { Text = "Ngày bắt đầu (yyyy-MM-dd)", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l4);
-            txtStart = new SFTextBox { Text = DateTime.Today.ToString("yyyy-MM-dd"), Location = new Point(4, y + 20), Width = 310, Height = 36 };
+            txtStart = new SFTextBox { Text = DateTime.Today.ToString("yyyy-MM-dd"), Location = new Point(4, y + 20), Width = 310, Height = 42 };
             p.Controls.Add(txtStart);
             y += 62;
 
             Label l5 = new Label { Text = "Ngày kết thúc (yyyy-MM-dd)", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l5);
-            txtEnd = new SFTextBox { Text = DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd"), Location = new Point(4, y + 20), Width = 310, Height = 36 };
+            txtEnd = new SFTextBox { Text = DateTime.Today.AddMonths(1).ToString("yyyy-MM-dd"), Location = new Point(4, y + 20), Width = 310, Height = 42 };
             p.Controls.Add(txtEnd);
             y += 62;
 
             Label l6 = new Label { Text = "Ghi chú & Điều kiện áp dụng", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l6);
-            txtNotes = new SFTextBox { Text = "Áp dụng tự động cho đơn bóng đá và cầu lông đặt trước 2 tiếng", Location = new Point(4, y + 20), Width = 310, Height = 36 };
+            txtNotes = new SFTextBox { Text = "Áp dụng tự động cho đơn bóng đá và cầu lông đặt trước 2 tiếng", Location = new Point(4, y + 20), Width = 310, Height = 42 };
             p.Controls.Add(txtNotes);
             y += 62;
 
@@ -1124,7 +1148,7 @@ namespace SportZone.WinForms.Views
         {
             Label l = new Label { Text = label, Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l);
-            SFTextBox t = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = 380, Height = 36 };
+            SFTextBox t = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = 380, Height = 42 };
             p.Controls.Add(t);
             return t;
         }

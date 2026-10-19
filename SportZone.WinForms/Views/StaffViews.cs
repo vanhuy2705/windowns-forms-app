@@ -81,10 +81,20 @@ namespace SportZone.WinForms.Views
                     if (row != null)
                     {
                         long donId = Convert.ToInt64(row["DonDatSanID"]);
-                        DatabaseManager.ExecuteNonQuery("UPDATE dbo.DonDatSan SET TrangThaiDon = 'DANG_SU_DUNG' WHERE DonDatSanID = @ID", new SqlParameter("@ID", donId));
-                        SFToast.Show(this, "Đã check-in và bắt đầu sử dụng sân cho đơn " + row["MaDon"], "CHECK-IN SÂN", SFIcon.Check, Colors.Emerald);
-                        LoadDataFromDatabase();
-                        return;
+                        try
+                        {
+                            int currentUserId = AppSession.Current != null ? AppSession.Current.TaiKhoanID : 0;
+                            new BookingService().CheckIn(donId, currentUserId);
+                            SFToast.Show(this, "Đã check-in và bắt đầu sử dụng sân cho đơn " + row["MaDon"], "CHECK-IN SÂN", SFIcon.Check, Colors.Emerald);
+                            LoadDataFromDatabase();
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            AppLogger.LogError(ex, "STAFF_SCHEDULE", "btnCheckin");
+                            SFToast.Show(this, "Lỗi check-in: " + ex.Message, "LỖI", SFIcon.AlertCircle, Colors.Coral);
+                            return;
+                        }
                     }
                 }
                 SFToast.Show(this, "Vui lòng chọn đơn thi đấu trong lịch hôm nay để check-in.", "THÔNG BÁO", SFIcon.AlertCircle, Colors.Amber);
@@ -177,7 +187,7 @@ namespace SportZone.WinForms.Views
             };
             for (int i = 0; i < 4; i++) kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             cardBookings = new SFMetricCard("ĐẶT SÂN HÔM NAY", "0 Đơn", "Đã xác nhận trong ngày", SFIcon.Calendar, Colors.ElectricBlue);
-            cardRevenue = new SFMetricCard("DOANH THU CA TRỰC", "0đ", "TM 0k • CK 0k", SFIcon.Dollar, Colors.Emerald, "+14% so ca qua");
+            cardRevenue = new SFMetricCard("DOANH THU CA TRỰC", "0đ", "TM 0k • CK 0k", SFIcon.Dollar, Colors.Emerald);
             cardCustomers = new SFMetricCard("KHÁCH PHÁT SINH", "0 Khách", "Khách hội viên", SFIcon.User, Colors.Purple);
             cardAlerts = new SFMetricCard("CẦN XỬ LÝ NGAY", "00 Đơn", "Sân đang thi đấu", SFIcon.AlertCircle, Colors.Coral, "Ưu tiên cao");
 
@@ -293,10 +303,7 @@ namespace SportZone.WinForms.Views
             chartHourly = new SFChart
             {
                 Dock = DockStyle.Fill,
-                AccentColor = Colors.ElectricBlue,
-                XLabels = new[] { "06h", "08h", "10h", "12h", "14h" },
-                Values = new double[] { 1.2, 2.8, 4.5, 6.2, 8.45 },
-                MaxValue = 10.0
+                AccentColor = Colors.ElectricBlue
             };
             cardChart.Controls.Add(chartHourly);
             chartHourly.BringToFront();
@@ -378,6 +385,32 @@ namespace SportZone.WinForms.Views
                     cardRevenue.Value = string.Format("{0:N0}đ", tongThu);
                     cardRevenue.SubValue = string.Format("TM {0:N0}k • CK {1:N0}k", tienMat / 1000m, chuyenKhoan / 1000m);
                 }
+
+                // 3. Dòng tiền theo giờ: chỉ nạp khi SP trả về bảng dữ liệu giờ thật
+                if (dsStats != null && dsStats.Tables.Count > 2 && dsStats.Tables[2].Rows.Count > 0)
+                {
+                    DataTable dtGio = dsStats.Tables[2];
+                    List<string> hLab = new List<string>();
+                    List<double> hVal = new List<double>();
+                    double hMax = 1.0;
+                    foreach (DataRow hrow in dtGio.Rows)
+                    {
+                        if (!hrow.Table.Columns.Contains("DoanhThu")) break;
+                        string lab = hrow.Table.Columns.Contains("KhungGio") ? hrow["KhungGio"]?.ToString() :
+                                     hrow.Table.Columns.Contains("Gio") ? hrow["Gio"]?.ToString() : "";
+                        double v = Convert.ToDouble(hrow["DoanhThu"]) / 1000000.0;
+                        hLab.Add(lab);
+                        hVal.Add(Math.Round(v, 2));
+                        if (v > hMax) hMax = v;
+                    }
+                    if (hVal.Count > 1)
+                    {
+                        chartHourly.XLabels = hLab.ToArray();
+                        chartHourly.Values = hVal.ToArray();
+                        chartHourly.MaxValue = hMax * 1.25;
+                        chartHourly.Invalidate();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -425,7 +458,7 @@ namespace SportZone.WinForms.Views
                     Variant = i == 3 ? SFButtonVariant.Primary : SFButtonVariant.Secondary,
                     IconType = i == 3 ? SFIcon.Check : SFIcon.None,
                     Width = 150,
-                    Height = 36
+                    Height = 42
                 };
                 if (i == 2) b.Click += (s, e) => { if (btnPayQr != null) btnPayQr.PerformClick(); };
                 keys.Controls.Add(b);
@@ -599,7 +632,17 @@ namespace SportZone.WinForms.Views
                         var objTot = DatabaseManager.ExecuteScalar("SELECT TongTien FROM dbo.DonDatSan WHERE DonDatSanID = @ID", new System.Data.SqlClient.SqlParameter("@ID", donId));
                         if (objTot != null && objTot != DBNull.Value) tot = Convert.ToDecimal(objTot);
                     }
-                    catch { tot = 350000; }
+                    catch (Exception exTot)
+                    {
+                        AppLogger.LogError(exTot, "STAFF_BOOKING", "QueryTongTien");
+                        tot = 0;
+                    }
+
+                    if (tot <= 0)
+                    {
+                        SFToast.Show(this, string.Format("Đã tạo đơn đặt sân {0} và hóa đơn #{1}, nhưng không thể xác thực tổng tiền hợp lệ (> 0). Không mở thanh toán QR.", bRes.MaDon, hdId), "CẢNH BÁO TỔNG TIỀN", SFIcon.AlertCircle, Colors.Amber);
+                        return;
+                    }
                     lastCreatedTotal = tot;
 
                     SFToast.Show(this, string.Format("Đã tạo đơn đặt sân {0} và hóa đơn #{1} thành công!", bRes.MaDon, hdId), "ĐẶT SÂN THÀNH CÔNG", SFIcon.Check, Colors.Emerald);
@@ -625,7 +668,7 @@ namespace SportZone.WinForms.Views
         {
             Label l = new Label { Text = label, Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l);
-            SFTextBox t = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = w, Height = 36 };
+            SFTextBox t = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = w, Height = 42 };
             p.Controls.Add(t);
             return t;
         }
@@ -634,7 +677,7 @@ namespace SportZone.WinForms.Views
         {
             Label l = new Label { Text = label, Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l);
-            SFComboBox c = new SFComboBox { Location = new Point(4, y + 20), Width = w, Height = 36 };
+            SFComboBox c = new SFComboBox { Location = new Point(4, y + 20), Width = w, Height = 42 };
             c.Items.AddRange(items);
             if (c.Items.Count > 0) c.SelectedIndex = 0;
             p.Controls.Add(c);
@@ -667,21 +710,21 @@ namespace SportZone.WinForms.Views
             d.ValueChanged += (s, e) => LoadData();
             tb.Controls.Add(d);
 
-            type = new SFComboBox { Width = 160, Height = 36 };
+            type = new SFComboBox { Width = 160, Height = 42 };
             type.Items.AddRange(new object[] { "Tất cả môn", "Bóng đá", "Cầu lông", "Bóng rổ", "Pickleball" });
             type.SelectedIndex = 0;
             type.SelectedIndexChanged += (s, e) => LoadData();
             tb.Controls.Add(type);
 
-            searchBox = new SFSearchBox { PlaceholderText = "Mã đơn / khách / sân...", Width = 230, Height = 36 };
+            searchBox = new SFSearchBox { PlaceholderText = "Mã đơn / khách / sân...", Width = 230, Height = 42 };
             searchBox.TextChanged += (s, e) => LoadData();
             tb.Controls.Add(searchBox);
 
-            SFButton btnRefresh = new SFButton { Text = "F5 • Làm mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 130, Height = 36 };
+            SFButton btnRefresh = new SFButton { Text = "F5 • Làm mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 130, Height = 42 };
             btnRefresh.Click += (s, e) => LoadData();
             tb.Controls.Add(btnRefresh);
 
-            SFButton btnAdd = new SFButton { Text = "F2 • Đặt sân", Variant = SFButtonVariant.Primary, IconType = SFIcon.Plus, Width = 130, Height = 36 };
+            SFButton btnAdd = new SFButton { Text = "F2 • Đặt sân", Variant = SFButtonVariant.Primary, IconType = SFIcon.Plus, Width = 130, Height = 42 };
             btnAdd.Click += (s, e) => (FindForm() as MainForm)?.ShowView("Đặt sân tại quầy");
             tb.Controls.Add(btnAdd);
 
@@ -850,9 +893,30 @@ namespace SportZone.WinForms.Views
                     long donId = Convert.ToInt64(row["DonDatSanID"]);
                     try
                     {
-                        DatabaseManager.ExecuteNonQuery("UPDATE dbo.DonDatSan SET TrangThaiDon = @ST WHERE DonDatSanID = @ID",
-                            new SqlParameter("@ST", status),
-                            new SqlParameter("@ID", donId));
+                        int currentUserId = AppSession.Current != null ? AppSession.Current.TaiKhoanID : 0;
+                        var bookingService = new BookingService();
+                        if (status == "DANG_SU_DUNG")
+                        {
+                            bookingService.CheckIn(donId, currentUserId);
+                        }
+                        else if (status == "HOAN_TAT" || status == "HOAN_THANH")
+                        {
+                            bookingService.CompleteBooking(donId, currentUserId);
+                        }
+                        else if (status == "DA_HUY")
+                        {
+                            bookingService.CancelBooking(donId, currentUserId, "Hủy bởi nhân viên từ lịch sân");
+                        }
+                        else if (status == "DA_XAC_NHAN")
+                        {
+                            bookingService.ConfirmBooking(donId, currentUserId);
+                        }
+                        else
+                        {
+                            DatabaseManager.ExecuteNonQuery("UPDATE dbo.DonDatSan SET TrangThaiDon = @ST WHERE DonDatSanID = @ID",
+                                new SqlParameter("@ST", status),
+                                new SqlParameter("@ID", donId));
+                        }
                         SFToast.Show(this, message, "CẬP NHẬT TRẠNG THÁI", SFIcon.Check, Colors.Emerald);
                         LoadData();
                         return;
@@ -924,6 +988,7 @@ namespace SportZone.WinForms.Views
         private SFMetricCard metricTongThu;
         private SFMetricCard metricChuaThu;
         private SFMetricCard metricChoXacNhan;
+        private Timer tmrSearchDebounce;
 
         public StaffInvoicesView()
         {
@@ -932,6 +997,17 @@ namespace SportZone.WinForms.Views
             Font = Typography.Body;
             BuildUI();
             LoadData();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && tmrSearchDebounce != null)
+            {
+                tmrSearchDebounce.Stop();
+                tmrSearchDebounce.Dispose();
+                tmrSearchDebounce = null;
+            }
+            base.Dispose(disposing);
         }
 
         private void BuildUI()
@@ -950,7 +1026,7 @@ namespace SportZone.WinForms.Views
             k.BringToFront();
 
             FlowLayoutPanel tb = Ui.Toolbar();
-            SFButton pay = new SFButton { Text = "Thu Tiền POS", Variant = SFButtonVariant.Primary, IconType = SFIcon.Dollar, Width = 150, Height = 36 };
+            SFButton pay = new SFButton { Text = "Thu Tiền POS", Variant = SFButtonVariant.Primary, IconType = SFIcon.Dollar, Width = 150, Height = 42 };
             pay.Click += (s, e) =>
             {
                 if (grid.SelectedRows.Count > 0 && grid.SelectedRows[0].Tag is DataRow r)
@@ -978,7 +1054,7 @@ namespace SportZone.WinForms.Views
             };
             tb.Controls.Add(pay);
 
-            SFButton confirm = new SFButton { Text = "Xác Nhận Chuyển Khoản", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Check, Width = 185, Height = 36 };
+            SFButton confirm = new SFButton { Text = "Xác Nhận Chuyển Khoản", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Check, Width = 185, Height = 42 };
             confirm.Click += (s, e) =>
             {
                 if (grid.SelectedRows.Count > 0 && grid.SelectedRows[0].Tag is DataRow r)
@@ -1018,12 +1094,12 @@ namespace SportZone.WinForms.Views
             };
             tb.Controls.Add(confirm);
 
-            SFButton refresh = new SFButton { Text = "Làm Mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 110, Height = 36 };
+            SFButton refresh = new SFButton { Text = "Làm Mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 110, Height = 42 };
             refresh.Click += (s, e) => LoadData();
             tb.Controls.Add(refresh);
 
-            searchBox = new SFSearchBox { PlaceholderText = "Mã HĐ / mã đơn / khách...", Width = 230, Height = 36 };
-            Timer debounceTimer = new Timer { Interval = 300 };
+            searchBox = new SFSearchBox { PlaceholderText = "Mã HĐ / mã đơn / khách...", Width = 230, Height = 42 };
+            Timer debounceTimer = tmrSearchDebounce = new Timer { Interval = 300 };
             debounceTimer.Tick += (s, e) =>
             {
                 debounceTimer.Stop();
@@ -1188,7 +1264,7 @@ namespace SportZone.WinForms.Views
             k.BringToFront();
 
             FlowLayoutPanel tb = Ui.Toolbar();
-            SFButton add = new SFButton { Text = "Thêm Khách", Variant = SFButtonVariant.Primary, IconType = SFIcon.Plus, Width = 150, Height = 36 };
+            SFButton add = new SFButton { Text = "Thêm Khách", Variant = SFButtonVariant.Primary, IconType = SFIcon.Plus, Width = 150, Height = 42 };
             add.Click += (s, e) =>
             {
                 if (new CustomerRegisterForm().ShowDialog(this) == DialogResult.OK)
@@ -1196,7 +1272,7 @@ namespace SportZone.WinForms.Views
             };
             tb.Controls.Add(add);
 
-            SFButton account = new SFButton { Text = "Cấp Tài Khoản App", Variant = SFButtonVariant.Secondary, IconType = SFIcon.User, Width = 165, Height = 36 };
+            SFButton account = new SFButton { Text = "Cấp Tài Khoản App", Variant = SFButtonVariant.Secondary, IconType = SFIcon.User, Width = 165, Height = 42 };
             account.Click += (s, e) =>
             {
                 if (new CustomerRegisterForm().ShowDialog(this) == DialogResult.OK)
@@ -1204,11 +1280,11 @@ namespace SportZone.WinForms.Views
             };
             tb.Controls.Add(account);
 
-            SFButton refresh = new SFButton { Text = "Làm Mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 110, Height = 36 };
+            SFButton refresh = new SFButton { Text = "Làm Mới", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Refresh, Width = 110, Height = 42 };
             refresh.Click += (s, e) => LoadData();
             tb.Controls.Add(refresh);
 
-            searchBox = new SFSearchBox { PlaceholderText = "F3 • Tên / SĐT / mã KH...", Width = 240, Height = 36 };
+            searchBox = new SFSearchBox { PlaceholderText = "F3 • Tên / SĐT / mã KH...", Width = 240, Height = 42 };
             searchBox.TextChanged += (s, e) => LoadData();
             tb.Controls.Add(searchBox);
             Controls.Add(tb);
@@ -1337,11 +1413,11 @@ namespace SportZone.WinForms.Views
             notice.BringToFront();
 
             FlowLayoutPanel tb = Ui.Toolbar();
-            s = new SFSearchBox { PlaceholderText = "Tìm mã / tên sân...", Width = 230, Height = 36 };
+            s = new SFSearchBox { PlaceholderText = "Tìm mã / tên sân...", Width = 230, Height = 42 };
             s.TextChanged += (sender, e) => LoadData();
             tb.Controls.Add(s);
 
-            SFButton check = new SFButton { Text = "Kiểm Tra Lịch Trống", Variant = SFButtonVariant.Primary, IconType = SFIcon.Calendar, Width = 175, Height = 36 };
+            SFButton check = new SFButton { Text = "Kiểm Tra Lịch Trống", Variant = SFButtonVariant.Primary, IconType = SFIcon.Calendar, Width = 175, Height = 42 };
             check.Click += (sender, e) => LoadData();
             tb.Controls.Add(check);
             Controls.Add(tb);
@@ -1532,7 +1608,7 @@ namespace SportZone.WinForms.Views
                         decimal giaMax = (row.Table.Columns.Contains("GiaCaoNhat") && row["GiaCaoNhat"] != DBNull.Value) ? Convert.ToDecimal(row["GiaCaoNhat"]) : 0;
 
                         string giaHienThi = giaMin > 0 && giaMax > 0 ? (giaMin == giaMax ? string.Format("{0:N0}đ/h", giaMin) : string.Format("{0:N0}đ - {1:N0}đ/h", giaMin, giaMax)) :
-                                            ((row.Table.Columns.Contains("GiaThamKhao") && row["GiaThamKhao"] != DBNull.Value) ? string.Format("{0:N0}đ/h", Convert.ToDecimal(row["GiaThamKhao"])) : "300.000đ/h");
+                                            ((row.Table.Columns.Contains("GiaThamKhao") && row["GiaThamKhao"] != DBNull.Value) ? string.Format("{0:N0}đ/h", Convert.ToDecimal(row["GiaThamKhao"])) : "—");
 
                         int rowIndex = grid.Rows.Add(ma, name, string.Format("{0} sân", soSan), "Tiêu chuẩn", "Pro Turf", giaHienThi);
                         grid.Rows[rowIndex].Tag = row;
@@ -1572,11 +1648,11 @@ namespace SportZone.WinForms.Views
             Controls.Add(Ui.Header("Thống Kê Ca Trực & Báo Cáo Nhanh", "Doanh thu, lượt đặt, phương thức thanh toán và đối soát theo ca nhân viên hiện tại."));
 
             FlowLayoutPanel tb = Ui.Toolbar();
-            SFButton show = new SFButton { Text = "Xem Báo Cáo", Variant = SFButtonVariant.Primary, IconType = SFIcon.Chart, Width = 140, Height = 36 };
+            SFButton show = new SFButton { Text = "Xem Báo Cáo", Variant = SFButtonVariant.Primary, IconType = SFIcon.Chart, Width = 140, Height = 42 };
             show.Click += (s, e) => LoadData();
             tb.Controls.Add(show);
 
-            SFButton handover = new SFButton { Text = "Bàn Giao / Đóng Ca (F8)", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Clock, Width = 190, Height = 36 };
+            SFButton handover = new SFButton { Text = "Bàn Giao / Đóng Ca (F8)", Variant = SFButtonVariant.Secondary, IconType = SFIcon.Clock, Width = 190, Height = 42 };
             handover.Click += (s, e) => new StaffShiftDialog().ShowDialog(this);
             tb.Controls.Add(handover);
             Controls.Add(tb);
@@ -1588,7 +1664,7 @@ namespace SportZone.WinForms.Views
             cardOrders = new SFMetricCard("LƯỢT ĐẶT SÂN", "0 Đơn", "0 đơn hoàn tất", SFIcon.Calendar, Colors.ElectricBlue);
             k.Controls.Add(cardRev, 0, 0);
             k.Controls.Add(cardOrders, 1, 0);
-            k.Controls.Add(new SFMetricCard("ĐÃ THANH TOÁN", "100%", "Đạt 100% quyết toán", SFIcon.Check, Colors.Purple), 2, 0);
+            k.Controls.Add(new SFMetricCard("ĐÃ THANH TOÁN", "—", "Tổng quyết toán ca", SFIcon.Check, Colors.Purple), 2, 0);
             k.Controls.Add(new SFMetricCard("TRẠNG THÁI CA", "Đang trực", "Phiên hoạt động", SFIcon.User, Colors.Amber), 3, 0);
             Controls.Add(k);
             k.BringToFront();
@@ -1605,10 +1681,7 @@ namespace SportZone.WinForms.Views
             SFChart chart = new SFChart
             {
                 Dock = DockStyle.Fill,
-                AccentColor = Colors.ElectricBlue,
-                XLabels = new[] { "06h", "08h", "10h", "12h", "14h" },
-                Values = new double[] { 2.1, 4.3, 7.8, 11.2, 14.85 },
-                MaxValue = 16.0
+                AccentColor = Colors.ElectricBlue
             };
             cardChart.Controls.Add(chart);
             chart.BringToFront();
@@ -1876,7 +1949,7 @@ namespace SportZone.WinForms.Views
         {
             Label l = new Label { Text = label, Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(4, y), AutoSize = true };
             p.Controls.Add(l);
-            box = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = 380, Height = 36, ReadOnly = ro };
+            box = new SFTextBox { Text = value, Location = new Point(4, y + 20), Width = 380, Height = 42, ReadOnly = ro };
             p.Controls.Add(box);
         }
     }

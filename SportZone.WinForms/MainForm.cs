@@ -1024,13 +1024,18 @@ namespace SportZone.WinForms
 
             if (view == null) view = new DashboardView();
 
-            // Smooth animated page slide transition
+            // Smooth animated page slide transition + dispose view cũ để tránh leak Timer/GDI
+            Control oldView = contentHost.Controls.Count > 0 ? contentHost.Controls[0] : null;
             contentHost.SuspendLayout();
             contentHost.Padding = (IsCustomer && key == "Trang chủ") ? new Padding(0) : new Padding(Metrics.ContentPadding);
             contentHost.Controls.Clear();
             view.Dock = DockStyle.Fill;
             contentHost.Controls.Add(view);
             contentHost.ResumeLayout(true);
+            if (oldView != null && oldView != view)
+            {
+                try { oldView.Dispose(); } catch { }
+            }
         }
 
         private Control AdminView(string key)

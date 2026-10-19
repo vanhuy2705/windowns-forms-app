@@ -148,7 +148,7 @@ namespace SportZone.WinForms.Dialogs
                 Text = value,
                 Location = new Point(0, y + 22),
                 Width = width,
-                Height = 36
+                Height = 42
             };
             parent.Controls.Add(t);
             return t.InnerTextBox;
@@ -271,7 +271,7 @@ namespace SportZone.WinForms.Dialogs
 
             Label lblState = new Label { Text = "Trạng thái vận hành", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 268), AutoSize = true };
             p1.Controls.Add(lblState);
-            stateCombo = new SFComboBox { Location = new Point(0, 290), Width = 340, Height = 36 };
+            stateCombo = new SFComboBox { Location = new Point(0, 290), Width = 340, Height = 42 };
             stateCombo.Items.AddRange(new object[] { "Đang hoạt động (Sẵn sàng)", "Bảo trì nâng cấp", "Tạm ngừng nhận khách" });
             stateCombo.SelectedIndex = 0;
             p1.Controls.Add(stateCombo);
@@ -1574,7 +1574,7 @@ namespace SportZone.WinForms.Dialogs
             };
             card.Controls.Add(t);
 
-            reasonCombo = new SFComboBox { Location = new Point(8, 190), Width = 380, Height = 36 };
+            reasonCombo = new SFComboBox { Location = new Point(8, 190), Width = 380, Height = 42 };
             reasonCombo.Items.AddRange(new object[] { "Khách đổi kế hoạch đột xuất", "Thời tiết mưa bão không thể đá", "Sân gặp sự cố kỹ thuật bảo trì", "Lý do khác" });
             reasonCombo.SelectedIndex = 0;
             card.Controls.Add(reasonCombo);
@@ -1655,7 +1655,7 @@ namespace SportZone.WinForms.Dialogs
             };
             p.Controls.Add(l1);
 
-            cboTiers = new SFComboBox { Location = new Point(0, 32), Width = 400, Height = 36 };
+            cboTiers = new SFComboBox { Location = new Point(0, 32), Width = 400, Height = 42 };
             try
             {
                 DataTable dt = _customerService.GetMembershipTiers();
@@ -1747,7 +1747,7 @@ namespace SportZone.WinForms.Dialogs
             Label l1 = new Label { Text = "Kênh gửi tin nhắn *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 10), AutoSize = true };
             p.Controls.Add(l1);
 
-            cboChannel = new SFComboBox { Location = new Point(0, 32), Width = 320, Height = 36 };
+            cboChannel = new SFComboBox { Location = new Point(0, 32), Width = 320, Height = 42 };
             cboChannel.Items.AddRange(new object[] { "ZALO - Zalo ZNS CSKH", "SMS - Tin Nhắn SMS Brandname", "APP - Thông Báo Ứng Dụng", "EMAIL - Thư Điện Tử" });
             cboChannel.SelectedIndex = 0;
             p.Controls.Add(cboChannel);
@@ -1755,7 +1755,7 @@ namespace SportZone.WinForms.Dialogs
             Label l2 = new Label { Text = "Mẫu tin nhắn mẫu (Template)", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 78), AutoSize = true };
             p.Controls.Add(l2);
 
-            cboTemplate = new SFComboBox { Location = new Point(0, 100), Width = 460, Height = 36 };
+            cboTemplate = new SFComboBox { Location = new Point(0, 100), Width = 460, Height = 42 };
             cboTemplate.Items.AddRange(new object[] {
                 "Nhắc lịch đặt sân sắp tới",
                 "Tặng voucher ưu đãi hội viên thân thiết",
@@ -1871,7 +1871,7 @@ namespace SportZone.WinForms.Dialogs
             Label l1 = new Label { Text = "Nhân viên *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 10), AutoSize = true };
             p.Controls.Add(l1);
 
-            cboEmployee = new SFComboBox { Location = new Point(0, 32), Width = 380, Height = 36 };
+            cboEmployee = new SFComboBox { Location = new Point(0, 32), Width = 380, Height = 42 };
             try
             {
                 DataTable dtNv = _employeeService.GetEmployees(null, true);
@@ -1894,7 +1894,7 @@ namespace SportZone.WinForms.Dialogs
             Label l2 = new Label { Text = "Cụm sân trực *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 78), AutoSize = true };
             p.Controls.Add(l2);
 
-            cboComplex = new SFComboBox { Location = new Point(0, 100), Width = 380, Height = 36 };
+            cboComplex = new SFComboBox { Location = new Point(0, 100), Width = 380, Height = 42 };
             try
             {
                 DataTable dtCs = DatabaseManager.ExecuteQuery("SELECT CumSanID, TenCumSan FROM dbo.CumSan WHERE DangHoatDong = 1");
@@ -1930,7 +1930,7 @@ namespace SportZone.WinForms.Dialogs
             Label l4 = new Label { Text = "Giờ bắt đầu *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 210), AutoSize = true };
             p.Controls.Add(l4);
 
-            cboStartTime = new SFComboBox { Location = new Point(0, 232), Width = 180, Height = 36 };
+            cboStartTime = new SFComboBox { Location = new Point(0, 232), Width = 180, Height = 42 };
             cboStartTime.Items.AddRange(new object[] { "06:00", "07:00", "08:00", "13:00", "14:00", "15:00", "17:00", "18:00" });
             cboStartTime.SelectedIndex = 0;
             p.Controls.Add(cboStartTime);
@@ -1938,7 +1938,7 @@ namespace SportZone.WinForms.Dialogs
             Label l5 = new Label { Text = "Giờ kết thúc *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(200, 210), AutoSize = true };
             p.Controls.Add(l5);
 
-            cboEndTime = new SFComboBox { Location = new Point(200, 232), Width = 180, Height = 36 };
+            cboEndTime = new SFComboBox { Location = new Point(200, 232), Width = 180, Height = 42 };
             cboEndTime.Items.AddRange(new object[] { "12:00", "14:00", "15:00", "18:00", "22:00", "23:00", "23:30" });
             cboEndTime.SelectedIndex = 1;
             p.Controls.Add(cboEndTime);
@@ -2009,7 +2009,7 @@ namespace SportZone.WinForms.Dialogs
             Label l = new Label { Text = "Chọn Vai Trò Hệ Thống:", Font = Typography.BodyBold, ForeColor = Colors.TextPrimary, Location = new Point(0, 14), AutoSize = true };
             topBar.Controls.Add(l);
 
-            cboRole = new SFComboBox { Location = new Point(160, 8), Width = 280, Height = 36 };
+            cboRole = new SFComboBox { Location = new Point(160, 8), Width = 280, Height = 42 };
             cboRole.SelectedIndexChanged += (s, e) => LoadMatrixForSelectedRole();
             topBar.Controls.Add(cboRole);
             card.Controls.Add(topBar);
@@ -2233,7 +2233,7 @@ namespace SportZone.WinForms.Dialogs
             Label l1 = new Label { Text = "Loại sân áp dụng *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 10), AutoSize = true };
             p.Controls.Add(l1);
 
-            cboFieldType = new SFComboBox { Location = new Point(0, 32), Width = 380, Height = 36 };
+            cboFieldType = new SFComboBox { Location = new Point(0, 32), Width = 380, Height = 42 };
             try
             {
                 DataTable dtFt = _fieldService.GetFieldTypes(null, true);
@@ -2258,7 +2258,7 @@ namespace SportZone.WinForms.Dialogs
             Label l2 = new Label { Text = "Loại ngày áp dụng *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 138), AutoSize = true };
             p.Controls.Add(l2);
 
-            cboDayType = new SFComboBox { Location = new Point(0, 160), Width = 380, Height = 36 };
+            cboDayType = new SFComboBox { Location = new Point(0, 160), Width = 380, Height = 42 };
             cboDayType.Items.AddRange(new object[] { "TAT_CA - Tất cả các ngày trong tuần", "NGAY_THUONG - Thứ 2 đến Thứ 6", "CUOI_TUAN - Thứ 7 và Chủ Nhật" });
             cboDayType.SelectedIndex = 0;
             p.Controls.Add(cboDayType);
@@ -2266,7 +2266,7 @@ namespace SportZone.WinForms.Dialogs
             Label l3 = new Label { Text = "Giờ bắt đầu *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 206), AutoSize = true };
             p.Controls.Add(l3);
 
-            cboStartTime = new SFComboBox { Location = new Point(0, 228), Width = 180, Height = 36 };
+            cboStartTime = new SFComboBox { Location = new Point(0, 228), Width = 180, Height = 42 };
             cboStartTime.Items.AddRange(new object[] { "06:00", "08:00", "14:00", "16:30", "17:00", "18:00" });
             cboStartTime.SelectedIndex = 3;
             p.Controls.Add(cboStartTime);
@@ -2274,7 +2274,7 @@ namespace SportZone.WinForms.Dialogs
             Label l4 = new Label { Text = "Giờ kết thúc *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(200, 206), AutoSize = true };
             p.Controls.Add(l4);
 
-            cboEndTime = new SFComboBox { Location = new Point(200, 228), Width = 180, Height = 36 };
+            cboEndTime = new SFComboBox { Location = new Point(200, 228), Width = 180, Height = 42 };
             cboEndTime.Items.AddRange(new object[] { "12:00", "17:00", "21:00", "22:00", "22:30", "23:00" });
             cboEndTime.SelectedIndex = 4;
             p.Controls.Add(cboEndTime);
@@ -2381,7 +2381,7 @@ namespace SportZone.WinForms.Dialogs
             Label l1 = new Label { Text = "Chọn Voucher đang kích hoạt *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 10), AutoSize = true };
             p.Controls.Add(l1);
 
-            cboVouchers = new SFComboBox { Location = new Point(0, 32), Width = 420, Height = 36 };
+            cboVouchers = new SFComboBox { Location = new Point(0, 32), Width = 420, Height = 42 };
             try
             {
                 DataTable dtV = _voucherService.GetVouchers(null, true);
@@ -2405,7 +2405,7 @@ namespace SportZone.WinForms.Dialogs
             Label l2 = new Label { Text = "Nhóm khách hàng mục tiêu *", Font = Typography.CaptionBold, ForeColor = Colors.TextSecondary, Location = new Point(0, 78), AutoSize = true };
             p.Controls.Add(l2);
 
-            cboTarget = new SFComboBox { Location = new Point(0, 100), Width = 420, Height = 36 };
+            cboTarget = new SFComboBox { Location = new Point(0, 100), Width = 420, Height = 42 };
             cboTarget.Items.AddRange(new object[] {
                 "Tất cả khách hàng (Toàn bộ hội viên)",
                 "Hội viên Hạng Bạc (SILVER)",
