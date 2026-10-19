@@ -1,51 +1,5 @@
-## ---- Visual Studio ----
 .vs/
-*.suo
+bin/
+obj/
 *.user
-*.userosscache
-*.userprefs
-*.sln.docstates
-*.cachefile
-*.VC.db
-*.VC.VC.opendb
-*.psess
-*.vsp
-*.vspx
-
-## ---- Kết quả build ----
-[Bb]in/
-[Oo]bj/
-[Dd]ebug/
-[Rr]elease/
-[Xx]64/
-[Xx]86/
-[Ww][Ii][Nn]32/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-artifacts/
-publish/
-[Pp]ackages/
-*.dll
-*.exe
-*.pdb
-*.cache
-*.nupkg
-
-## ---- NuGet ----
-*.nuget.props
-*.nuget.targets
-project.lock.json
-project.fragment.lock.json
-
-## ---- Code analysis / test ----
-*.coverage
-*.coveragexml
-TestResults/
-[Tt]est[Rr]esult*/
-
-## ---- Khác ----
-*.log
-*.tmp
-*.bak
-*.orig
-Thumbs.db
+*.suo

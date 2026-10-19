@@ -1,1 +1,0 @@
-Forms = các Windows Form chính (.cs và .Designer.cs)\nBase = BaseForm/BaseMainForm\nControls = custom controls\nHelpers = helper giao diện, biểu đồ, in hóa đơn...\nProgram.cs, appsettings.json, app.manifest, csproj giữ ở thư mục gốc WinForms.\n

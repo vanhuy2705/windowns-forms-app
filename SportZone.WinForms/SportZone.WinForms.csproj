@@ -1,0 +1,169 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B4A8AE9C-6F09-471E-BC6C-6B7399E56334}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>SportZone.WinForms</RootNamespace>
+    <AssemblyName>SportZone.WinForms</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols><DebugType>full</DebugType><Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath><DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport><WarningLevel>4</WarningLevel><Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType><Optimize>true</Optimize><OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants><ErrorReport>prompt</ErrorReport><WarningLevel>4</WarningLevel><Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" /><Reference Include="System.Core" /><Reference Include="System.Data" />
+    <Reference Include="System.Drawing" /><Reference Include="System.Windows.Forms" /><Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Security" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="QRCoder">
+      <HintPath>lib\QRCoder.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ClosedXML">
+      <HintPath>lib\ClosedXML.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DocumentFormat.OpenXml">
+      <HintPath>lib\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ExcelNumberFormat">
+      <HintPath>lib\ExcelNumberFormat.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SixLabors.Fonts">
+      <HintPath>lib\SixLabors.Fonts.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Irony">
+      <HintPath>lib\Irony.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XLParser">
+      <HintPath>lib\XLParser.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Buffers">
+      <HintPath>lib\System.Buffers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Memory">
+      <HintPath>lib\System.Memory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>lib\System.Numerics.Vectors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>lib\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.IO.Packaging">
+      <HintPath>lib\System.IO.Packaging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PdfSharp">
+      <HintPath>lib\PdfSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="BouncyCastle.Cryptography">
+      <HintPath>lib\BouncyCastle.Cryptography.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Formats.Asn1">
+      <HintPath>lib\System.Formats.Asn1.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>lib\System.Threading.Tasks.Extensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MimeKit">
+      <HintPath>lib\MimeKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MailKit">
+      <HintPath>lib\MailKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Theme\Colors.cs" />
+    <Compile Include="Theme\Typography.cs" />
+    <Compile Include="Theme\Metrics.cs" />
+    <Compile Include="Theme\LayoutMetrics.cs" />
+    <Compile Include="Theme\DpiHelper.cs" />
+    <Compile Include="Theme\Shadows.cs" />
+    <Compile Include="Controls\VectorIcons.cs" />
+    <Compile Include="Controls\AssetManager.cs" />
+    <Compile Include="Controls\SFButton.cs" />
+    <Compile Include="Controls\SFInputs.cs" />
+    <Compile Include="Controls\SFCardAndBadges.cs" />
+    <Compile Include="Controls\SFDataGridView.cs" />
+    <Compile Include="Controls\SFChart.cs" />
+    <Compile Include="Controls\SFToast.cs" />
+    <Compile Include="Controls\SFFieldAndVoucherCards.cs" />
+    <Compile Include="Controls\SFTimeline.cs" />
+    <Compile Include="Controls\SFEmptyAndLoading.cs" />
+    <Compile Include="Program.cs" /><Compile Include="Theme.cs" /><Compile Include="Ui.cs" />
+    <Compile Include="Controls.cs" /><Compile Include="LoginForm.cs" /><Compile Include="MainForm.cs" />
+    <Compile Include="Views\DashboardView.cs" /><Compile Include="Views\QuickBookingView.cs" />
+    <Compile Include="Views\FieldManagementView.cs" /><Compile Include="Views\FieldTypesPriceView.cs" />
+    <Compile Include="Views\ScheduleView.cs" /><Compile Include="Views\BookingManagementView.cs" />
+    <Compile Include="Views\CustomerManagementView.cs" /><Compile Include="Views\EmployeeManagementView.cs" />
+    <Compile Include="Views\ServiceInventoryView.cs" /><Compile Include="Views\VoucherManagementView.cs" />
+    <Compile Include="Views\ReportsView.cs" /><Compile Include="Views\OnlineDepositView.cs" />
+    <Compile Include="Views\AdminExtraViews.cs" />
+    <Compile Include="Views\StaffViews.cs" />
+    <Compile Include="Views\CustomerViews.cs" />
+    <Compile Include="Dialogs\CrudForms.cs" />
+    <Compile Include="Dialogs\RoleDialogs.cs" />
+    <Compile Include="Database\DatabaseManager.cs" />
+    <Compile Include="Helpers\AppLogger.cs" />
+    <Compile Include="Helpers\VietQRHelper.cs" />
+    <Compile Include="Helpers\ExportHelper.cs" />
+    <Compile Include="Security\PasswordSecurity.cs" />
+    <Compile Include="Security\SessionGuard.cs" />
+    <Compile Include="Session\AppSession.cs" />
+    <Compile Include="Repositories\AppRepositories.cs" />
+    <Compile Include="Services\AppServices.cs" />
+    <Compile Include="Models\NotificationItem.cs" />
+    <Compile Include="Repositories\NotificationRepository.cs" />
+    <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Controls\SFBellButton.cs" />
+    <Compile Include="Controls\NotificationPopup.cs" />
+    <Compile Include="Models\PasswordRecoveryModels.cs" />
+    <Compile Include="Repositories\PasswordRecoveryRepository.cs" />
+    <Compile Include="Services\PasswordRecoveryService.cs" />
+    <Compile Include="Services\EmailService.cs" />
+    <Compile Include="Dialogs\ForgotPasswordForm.cs" />
+    <Compile Include="Dialogs\AdminRecoveryDialog.cs" />
+    <Compile Include="Helpers\SportFieldIconProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="README.txt" />
+    <Content Include="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
