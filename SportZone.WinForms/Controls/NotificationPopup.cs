@@ -278,7 +278,7 @@ namespace SportZone.WinForms.Controls
 
             Label lbl = new Label
             {
-                Text = "⚠️ " + message,
+                Text = message,
                 Font = Typography.Secondary,
                 ForeColor = Colors.Danger,
                 Dock = DockStyle.Fill,

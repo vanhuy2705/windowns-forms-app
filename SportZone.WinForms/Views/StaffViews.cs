@@ -177,7 +177,7 @@ namespace SportZone.WinForms.Views
             };
             for (int i = 0; i < 4; i++) kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             cardBookings = new SFMetricCard("ĐẶT SÂN HÔM NAY", "0 Đơn", "Đã xác nhận trong ngày", SFIcon.Calendar, Colors.ElectricBlue);
-            cardRevenue = new SFMetricCard("DOANH THU CA TRỰC", "0đ", "TM 0k • CK 0k", SFIcon.Dollar, Colors.Emerald, "+14% so ca qua");
+            cardRevenue = new SFMetricCard("DOANH THU CA TRỰC", "0đ", "TM 0k • CK 0k", SFIcon.Dollar, Colors.Emerald);
             cardCustomers = new SFMetricCard("KHÁCH PHÁT SINH", "0 Khách", "Khách hội viên", SFIcon.User, Colors.Purple);
             cardAlerts = new SFMetricCard("CẦN XỬ LÝ NGAY", "00 Đơn", "Sân đang thi đấu", SFIcon.AlertCircle, Colors.Coral, "Ưu tiên cao");
 
@@ -293,10 +293,7 @@ namespace SportZone.WinForms.Views
             chartHourly = new SFChart
             {
                 Dock = DockStyle.Fill,
-                AccentColor = Colors.ElectricBlue,
-                XLabels = new[] { "06h", "08h", "10h", "12h", "14h" },
-                Values = new double[] { 1.2, 2.8, 4.5, 6.2, 8.45 },
-                MaxValue = 10.0
+                AccentColor = Colors.ElectricBlue
             };
             cardChart.Controls.Add(chartHourly);
             chartHourly.BringToFront();
@@ -377,6 +374,32 @@ namespace SportZone.WinForms.Views
 
                     cardRevenue.Value = string.Format("{0:N0}đ", tongThu);
                     cardRevenue.SubValue = string.Format("TM {0:N0}k • CK {1:N0}k", tienMat / 1000m, chuyenKhoan / 1000m);
+                }
+
+                // 3. Dòng tiền theo giờ: chỉ nạp khi SP trả về bảng dữ liệu giờ thật
+                if (dsStats != null && dsStats.Tables.Count > 2 && dsStats.Tables[2].Rows.Count > 0)
+                {
+                    DataTable dtGio = dsStats.Tables[2];
+                    List<string> hLab = new List<string>();
+                    List<double> hVal = new List<double>();
+                    double hMax = 1.0;
+                    foreach (DataRow hrow in dtGio.Rows)
+                    {
+                        if (!hrow.Table.Columns.Contains("DoanhThu")) break;
+                        string lab = hrow.Table.Columns.Contains("KhungGio") ? hrow["KhungGio"]?.ToString() :
+                                     hrow.Table.Columns.Contains("Gio") ? hrow["Gio"]?.ToString() : "";
+                        double v = Convert.ToDouble(hrow["DoanhThu"]) / 1000000.0;
+                        hLab.Add(lab);
+                        hVal.Add(Math.Round(v, 2));
+                        if (v > hMax) hMax = v;
+                    }
+                    if (hVal.Count > 1)
+                    {
+                        chartHourly.XLabels = hLab.ToArray();
+                        chartHourly.Values = hVal.ToArray();
+                        chartHourly.MaxValue = hMax * 1.25;
+                        chartHourly.Invalidate();
+                    }
                 }
             }
             catch (Exception ex)
@@ -1532,7 +1555,7 @@ namespace SportZone.WinForms.Views
                         decimal giaMax = (row.Table.Columns.Contains("GiaCaoNhat") && row["GiaCaoNhat"] != DBNull.Value) ? Convert.ToDecimal(row["GiaCaoNhat"]) : 0;
 
                         string giaHienThi = giaMin > 0 && giaMax > 0 ? (giaMin == giaMax ? string.Format("{0:N0}đ/h", giaMin) : string.Format("{0:N0}đ - {1:N0}đ/h", giaMin, giaMax)) :
-                                            ((row.Table.Columns.Contains("GiaThamKhao") && row["GiaThamKhao"] != DBNull.Value) ? string.Format("{0:N0}đ/h", Convert.ToDecimal(row["GiaThamKhao"])) : "300.000đ/h");
+                                            ((row.Table.Columns.Contains("GiaThamKhao") && row["GiaThamKhao"] != DBNull.Value) ? string.Format("{0:N0}đ/h", Convert.ToDecimal(row["GiaThamKhao"])) : "—");
 
                         int rowIndex = grid.Rows.Add(ma, name, string.Format("{0} sân", soSan), "Tiêu chuẩn", "Pro Turf", giaHienThi);
                         grid.Rows[rowIndex].Tag = row;
@@ -1588,7 +1611,7 @@ namespace SportZone.WinForms.Views
             cardOrders = new SFMetricCard("LƯỢT ĐẶT SÂN", "0 Đơn", "0 đơn hoàn tất", SFIcon.Calendar, Colors.ElectricBlue);
             k.Controls.Add(cardRev, 0, 0);
             k.Controls.Add(cardOrders, 1, 0);
-            k.Controls.Add(new SFMetricCard("ĐÃ THANH TOÁN", "100%", "Đạt 100% quyết toán", SFIcon.Check, Colors.Purple), 2, 0);
+            k.Controls.Add(new SFMetricCard("ĐÃ THANH TOÁN", "—", "Tổng quyết toán ca", SFIcon.Check, Colors.Purple), 2, 0);
             k.Controls.Add(new SFMetricCard("TRẠNG THÁI CA", "Đang trực", "Phiên hoạt động", SFIcon.User, Colors.Amber), 3, 0);
             Controls.Add(k);
             k.BringToFront();
@@ -1605,10 +1628,7 @@ namespace SportZone.WinForms.Views
             SFChart chart = new SFChart
             {
                 Dock = DockStyle.Fill,
-                AccentColor = Colors.ElectricBlue,
-                XLabels = new[] { "06h", "08h", "10h", "12h", "14h" },
-                Values = new double[] { 2.1, 4.3, 7.8, 11.2, 14.85 },
-                MaxValue = 16.0
+                AccentColor = Colors.ElectricBlue
             };
             cardChart.Controls.Add(chart);
             chart.BringToFront();

@@ -137,10 +137,10 @@ namespace SportZone.WinForms.Views
             {
                 kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             }
-            kpiPanel.Controls.Add(new SFMetricCard("TỔNG LOẠI SÂN", "05", "Đang vận hành", SFIcon.Field, Colors.Emerald, "+1 mới"), 0, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("QUY MÔ SÂN", "10 Sân", "CSDL Live", SFIcon.Field, Colors.ElectricBlue), 1, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("KHUNG GIỜ VÀNG", "16:30 - 22:30", "Phụ thu cao điểm", SFIcon.Clock, Colors.Amber), 2, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("ĐƠN GIÁ BÌNH QUÂN", "280.000đ", "/ giờ thi đấu chuẩn", SFIcon.Dollar, Colors.Purple), 3, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("TỔNG LOẠI SÂN", "—", "Đang vận hành", SFIcon.Field, Colors.Emerald), 0, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("QUY MÔ SÂN", "—", "Khu trung tâm & phụ", SFIcon.Field, Colors.ElectricBlue), 1, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("KHUNG GIỜ VÀNG", "—", "Phụ thu cao điểm", SFIcon.Clock, Colors.Amber), 2, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("ĐƠN GIÁ BÌNH QUÂN", "—", "/ giờ thi đấu chuẩn", SFIcon.Dollar, Colors.Purple), 3, 0);
             
             Controls.Add(kpiPanel);
             kpiPanel.BringToFront();
@@ -266,7 +266,8 @@ namespace SportZone.WinForms.Views
                             totalCourts += Convert.ToInt32(r["SoSan"]);
                     }
 
-                    decimal avgPrice = 280000;
+                    decimal avgPrice = 0;
+                    bool hasAvg = false;
                     if (pricesTable != null && pricesTable.Rows.Count > 0)
                     {
                         decimal sumPrice = 0;
@@ -279,14 +280,14 @@ namespace SportZone.WinForms.Views
                                 countPrice++;
                             }
                         }
-                        if (countPrice > 0) avgPrice = sumPrice / countPrice;
+                        if (countPrice > 0) { avgPrice = sumPrice / countPrice; hasAvg = true; }
                     }
 
                     kpiPanel.Controls.Clear();
                     kpiPanel.Controls.Add(new SFMetricCard("TỔNG LOẠI SÂN", totalTypes.ToString("00"), "Môn thể thao", SFIcon.Field, Colors.Emerald, "CSDL Live"), 0, 0);
                     kpiPanel.Controls.Add(new SFMetricCard("QUY MÔ SÂN", totalCourts.ToString("00") + " Sân", "Khu trung tâm & phụ", SFIcon.Field, Colors.ElectricBlue), 1, 0);
-                    kpiPanel.Controls.Add(new SFMetricCard("KHUNG GIỜ VÀNG", "16:30 - 22:30", "Phụ thu cao điểm", SFIcon.Clock, Colors.Amber), 2, 0);
-                    kpiPanel.Controls.Add(new SFMetricCard("ĐƠN GIÁ BÌNH QUÂN", string.Format("{0:N0}đ", (int)avgPrice), "/ giờ thi đấu chuẩn", SFIcon.Dollar, Colors.Purple), 3, 0);
+                    kpiPanel.Controls.Add(new SFMetricCard("KHUNG GIỜ VÀNG", "—", "Phụ thu cao điểm", SFIcon.Clock, Colors.Amber), 2, 0);
+                    kpiPanel.Controls.Add(new SFMetricCard("ĐƠN GIÁ BÌNH QUÂN", hasAvg ? string.Format("{0:N0}đ", (int)avgPrice) : "—", "/ giờ thi đấu chuẩn", SFIcon.Dollar, Colors.Purple), 3, 0);
 
                     ApplyFilter();
                     return;

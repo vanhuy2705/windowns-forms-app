@@ -191,10 +191,10 @@ namespace SportZone.WinForms.Views
             {
                 kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             }
-            kpiQueue = new SFMetricCard("HÀNG ĐỢI ONLINE", "6 Đơn", "Đang xử lý trực tuyến", SFIcon.Clock, Colors.ElectricBlue);
-            kpiMatched = new SFMetricCard("KHỚP VIETQR TỰ ĐỘNG", "3 Đơn", "Đã nhận tiền qua Napas", SFIcon.Check, Colors.Emerald, "100% chính xác");
-            kpiPending = new SFMetricCard("CHỜ DUYỆT THỦ CÔNG", "2 Đơn", "Cần kiểm tra sao kê ngân hàng", SFIcon.Bell, Colors.Amber);
-            kpiExpiring = new SFMetricCard("SẮP QUÁ HẠN 15 PHÚT", "1 Đơn", "Cần hủy hoặc nhắc khách", SFIcon.AlertCircle, Colors.Coral, "Hạn < 2 phút");
+            kpiQueue = new SFMetricCard("HÀNG ĐỢI ONLINE", "—", "Đang xử lý trực tuyến", SFIcon.Clock, Colors.ElectricBlue);
+            kpiMatched = new SFMetricCard("KHỚP VIETQR TỰ ĐỘNG", "—", "Đã nhận tiền qua Napas", SFIcon.Check, Colors.Emerald);
+            kpiPending = new SFMetricCard("CHỜ DUYỆT THỦ CÔNG", "—", "Cần kiểm tra sao kê ngân hàng", SFIcon.Bell, Colors.Amber);
+            kpiExpiring = new SFMetricCard("SẮP QUÁ HẠN 15 PHÚT", "—", "Cần hủy hoặc nhắc khách", SFIcon.AlertCircle, Colors.Coral);
 
             kpiPanel.Controls.Add(kpiQueue, 0, 0);
             kpiPanel.Controls.Add(kpiMatched, 1, 0);

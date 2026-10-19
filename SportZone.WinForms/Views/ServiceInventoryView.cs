@@ -103,10 +103,10 @@ namespace SportZone.WinForms.Views
             {
                 kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             }
-            kpiPanel.Controls.Add(new SFMetricCard("TỔNG GIÁ TRỊ KHO", "184,52tr", "58 mặt hàng quản lý", SFIcon.Dollar, Colors.Amber, "Kiểm đếm 100%"), 0, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("ĐÃ ĐỐI SOÁT", "181,89tr", "98,6% khớp thực tế", SFIcon.Check, Colors.Emerald, "Hao hụt cực thấp"), 1, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("CẢNH BÁO TỒN KHO", "02 Món", "Dưới ngưỡng an toàn", SFIcon.Bell, Colors.Coral, "Cần nhập gấp"), 2, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("DOANH THU CA HIỆN TẠI", "1.450.000đ", "F&B & Dịch vụ đi kèm", SFIcon.Chart, Colors.ElectricBlue, "+18% so ca qua"), 3, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("TỔNG GIÁ TRỊ KHO", "—", "Mặt hàng quản lý", SFIcon.Dollar, Colors.Amber), 0, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("MẶT HÀNG KINH DOANH", "—", "F&B và cho thuê", SFIcon.Check, Colors.Emerald), 1, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("CẢNH BÁO TỒN KHO", "—", "Dưới ngưỡng an toàn", SFIcon.Bell, Colors.Coral), 2, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("DOANH THU CA HIỆN TẠI", "—", "F&B & Dịch vụ đi kèm", SFIcon.Chart, Colors.ElectricBlue), 3, 0);
 
             Controls.Add(kpiPanel);
             kpiPanel.BringToFront();
@@ -234,10 +234,10 @@ namespace SportZone.WinForms.Views
                     }
 
                     kpiPanel.Controls.Clear();
-                    kpiPanel.Controls.Add(new SFMetricCard("TỔNG GIÁ TRỊ KHO", (totalVal / 1000000m).ToString("0.0#") + "tr", totalItems + " mặt hàng SQL", SFIcon.Dollar, Colors.Amber, "Kiểm đếm 100%"), 0, 0);
-                    kpiPanel.Controls.Add(new SFMetricCard("MẶT HÀNG KINH DOANH", totalItems.ToString(), "F&B và cho thuê", SFIcon.Check, Colors.Emerald, "Khớp thực tế"), 1, 0);
+                    kpiPanel.Controls.Add(new SFMetricCard("TỔNG GIÁ TRỊ KHO", (totalVal / 1000000m).ToString("0.0#") + "tr", totalItems + " mặt hàng SQL", SFIcon.Dollar, Colors.Amber), 0, 0);
+                    kpiPanel.Controls.Add(new SFMetricCard("MẶT HÀNG KINH DOANH", totalItems.ToString(), "F&B và cho thuê", SFIcon.Check, Colors.Emerald), 1, 0);
                     kpiPanel.Controls.Add(new SFMetricCard("CẢNH BÁO TỒN KHO", alertCount.ToString() + " Món", "Dưới ngưỡng an toàn", SFIcon.Bell, alertCount > 0 ? Colors.Coral : Colors.Emerald, alertCount > 0 ? "Cần nhập thêm" : "An toàn"), 2, 0);
-                    kpiPanel.Controls.Add(new SFMetricCard("DOANH THU CA HIỆN TẠI", "1.450.000đ", "Dịch vụ đi kèm", SFIcon.Chart, Colors.ElectricBlue, "+18% so ca qua"), 3, 0);
+                    kpiPanel.Controls.Add(new SFMetricCard("DOANH THU CA HIỆN TẠI", "—", "F&B & Dịch vụ đi kèm", SFIcon.Chart, Colors.ElectricBlue), 3, 0);
 
                     ApplyFilter();
                     return;

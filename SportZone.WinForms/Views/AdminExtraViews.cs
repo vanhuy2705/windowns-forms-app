@@ -170,10 +170,10 @@ namespace SportZone.WinForms.Views
             };
             for (int i = 0; i < 4; i++) kpi.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
 
-            cardTotalToday = new SFMetricCard("TỔNG THU HÔM NAY", "0 đ", "Hóa đơn hoàn tất", SFIcon.Dollar, Colors.Emerald, "+15% YoY");
+            cardTotalToday = new SFMetricCard("TỔNG THU HÔM NAY", "0 đ", "Hóa đơn hoàn tất", SFIcon.Dollar, Colors.Emerald);
             cardRemaining = new SFMetricCard("CÒN PHẢI THU", "0 đ", "Đơn đang còn dư nợ", SFIcon.Clock, Colors.Amber, "Thu khi trả sân");
             cardPendingTransfer = new SFMetricCard("CHỜ XÁC NHẬN CK", "0 đ", "Giao dịch VietQR", SFIcon.Bell, Colors.ElectricBlue);
-            cardSettledRate = new SFMetricCard("TỶ LỆ QUYẾT TOÁN", "100%", "Đơn thanh toán đủ", SFIcon.Check, Colors.Purple);
+            cardSettledRate = new SFMetricCard("TỶ LỆ QUYẾT TOÁN", "—", "Đơn thanh toán đủ", SFIcon.Check, Colors.Purple);
 
             kpi.Controls.Add(cardTotalToday, 0, 0);
             kpi.Controls.Add(cardRemaining, 1, 0);

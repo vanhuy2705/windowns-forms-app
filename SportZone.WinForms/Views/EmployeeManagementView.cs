@@ -108,10 +108,10 @@ namespace SportZone.WinForms.Views
             {
                 kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             }
-            kpiPanel.Controls.Add(new SFMetricCard("TỔNG NHÂN SỰ", "4", "Hội đồng & vận hành", SFIcon.User, Colors.ElectricBlue), 0, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("ĐANG TRONG CA", "03", "Ca hôm nay", SFIcon.Clock, Colors.Emerald, "100% đúng giờ"), 1, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("LƯỢT POS HÔM NAY", "148", "Giao dịch xử lý", SFIcon.Chart, Colors.Purple, "+12% tốc độ"), 2, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("CẢNH BÁO BẢO MẬT", "00", "Không có truy cập lạ", SFIcon.Check, Colors.Emerald, "An toàn tuyệt đối"), 3, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("TỔNG NHÂN SỰ", "—", "Hội đồng & vận hành", SFIcon.User, Colors.ElectricBlue), 0, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("ĐANG TRONG CA", "—", "Ca hôm nay", SFIcon.Clock, Colors.Emerald), 1, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("LƯỢT POS HÔM NAY", "—", "Giao dịch xử lý", SFIcon.Chart, Colors.Purple), 2, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("CẢNH BÁO BẢO MẬT", "—", "Truy cập bất thường", SFIcon.Check, Colors.Emerald), 3, 0);
 
             Controls.Add(kpiPanel);
             kpiPanel.BringToFront();

@@ -123,10 +123,10 @@ namespace SportZone.WinForms.Views
             {
                 kpiPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25f));
             }
-            kpiPanel.Controls.Add(new SFMetricCard("ĐANG CHẠY", "04", "Chiến dịch kích hoạt", SFIcon.Ticket, Colors.Coral, "Tối ưu ngân sách"), 0, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("LƯỢT ÁP MÃ", "1.482", "Khách đã sử dụng", SFIcon.Check, Colors.Purple, "+14% tháng này"), 1, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("TỔNG ƯU ĐÃI", "42,8tr", "Giá trị giảm trực tiếp", SFIcon.Dollar, Colors.Amber), 2, 0);
-            kpiPanel.Controls.Add(new SFMetricCard("DOANH THU KÈM VOUCHER", "286tr", "Doanh thu mang lại", SFIcon.Chart, Colors.Emerald, "ROI x6.7 lần"), 3, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("ĐANG CHẠY", "—", "Chiến dịch kích hoạt", SFIcon.Ticket, Colors.Coral), 0, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("LƯỢT ÁP MÃ", "—", "Khách đã sử dụng", SFIcon.Check, Colors.Purple), 1, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("TỔNG CHIẾN DỊCH", "—", "Giá trị giảm trực tiếp", SFIcon.Dollar, Colors.Amber), 2, 0);
+            kpiPanel.Controls.Add(new SFMetricCard("HIỆU SUẤT ROI", "—", "Doanh thu mang lại", SFIcon.Chart, Colors.Emerald), 3, 0);
 
             Controls.Add(kpiPanel);
             kpiPanel.BringToFront();
