@@ -105,6 +105,16 @@ namespace SportZone.WinForms.Controls
         public void Start() { Visible = true; BringToFront(); timer.Start(); }
         public void Stop() { timer.Stop(); Visible = false; }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                timer.Stop();
+                timer.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

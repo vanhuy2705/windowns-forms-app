@@ -103,6 +103,18 @@ namespace SportZone.WinForms.Controls
             }
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                dismissTimer.Stop();
+                dismissTimer.Dispose();
+                animTimer.Stop();
+                animTimer.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
